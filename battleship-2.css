@@ -1,0 +1,47 @@
+* {
+    box-sizing: border-box;
+    background-color: rgb(77, 77, 77);
+    color: rgb(235, 192, 139);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    font-size: 95%;
+    line-height: 140%;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+}
+
+@media only screen and (min-width: 0px) {
+    input {
+        text-align: center;
+    }
+    .inpLgt[type="number"] {
+        width: 300px;
+        height: 160px;
+        position: relative;
+        padding: 0px 30px;
+        font-size: 500%;
+    }
+    .inpDir[type="text"] {
+        width: 300px;
+        height: 160px;
+        position: relative;
+        padding: 0px 30px;
+        font-size: 500%;
+    }
+    .inpCor[type="number"] {
+        width: 300px;
+        height: 160px;
+        position: relative;
+        padding: 0px 30px;
+        font-size: 500%;
+    }
+    .inpSub {
+        width: 300px;
+        height: 160px;
+        position: relative;
+        padding: 0px 30px;
+        font-size: 500%;
+    }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "projekt-013-battleships-2-ai",
+  "version": "1.0.0",
+  "description": "",
+  "main": "battleships-2.js",
+  "scripts": {
+    "compile": "tsc --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@types/promise": "^7.1.30"
+  }
+}
