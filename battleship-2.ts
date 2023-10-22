@@ -178,29 +178,38 @@ dangerousFields_Obj.setToBtmAR();
 // Użytkownik - akcje:
 const userChooseShipCor: {
     userShipsAR: UserShipCor[],
-    addUserShip: Function,
+    onceShipArgs: (string | number)[],
+    addUserShip_AEL: Function,
     submitBut: HTMLInputElement,
-    shipLgt: HTMLInputElement,
-    shipDir: HTMLInputElement,
-    shipStartCor: HTMLInputElement,
-    createLimit: number
+    /*shipLgt: HTMLInputElement,
+    shipDir: HTMLInputElement,*/
+    //shipStartCor: HTMLInputElement,
+    createLimit: number,
+    selectShip_AEL: Function,
+    rotateShip_AEL: Function,
+    pointSwt: string,
+    moveShip_AEL: Function,
+    mousemove_AEL: Function,
+    mouseCorAR: number[]
 } = {
     userShipsAR: [],
-    submitBut: document.querySelector('input.inpSub'),
-    shipLgt: document.querySelector('input.inpLgt'),
-    shipDir: document.querySelector('input.inpDir'),
-    shipStartCor: document.querySelector('input.inpCor'),
+    onceShipArgs: [3, 'B'],
+    submitBut: document.querySelector('div.im-submit'),
+    /*shipLgt: document.querySelector('input.inpLgt'),
+    shipDir: document.querySelector('input.inpDir'),*/
+    //shipStartCor: document.querySelector('input.inpCor'),
     createLimit: 0,
-    addUserShip():void {
-        const el = 
+    pointSwt: 'top',
+    mouseCorAR: [],
+    addUserShip_AEL(arg_1):void {
         ['click', 'touchend'].forEach((ev) => {
             this.submitBut.addEventListener(ev, () => {
                 if (this.createLimit < 7) {
                     this.createLimit += 1;
                     let num: number = this.createLimit;
-                    let lgt: number = this.shipLgt.value;
-                    let dir: string = this.shipDir.value;
-                    let cor: number = this.shipStartCor.value;
+                    let lgt: number = this.shipLgt.value;   //this.shipLgt.value
+                    let dir: string = this.shipDir.value;   //this.shipDir.value
+                    let cor: number = arg_1;   //this.shipStartCor.value
                     let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor);
                     this.userShipsAR.push(ship);
                     console.log(this.createLimit);
@@ -210,9 +219,112 @@ const userChooseShipCor: {
                 } else {}
             }, false);
         });
+    },
+    selectShip_AEL():void {
+        const selectEL: HTMLSelectElement = document.querySelector('select.im-select-ship');
+        selectEL.addEventListener('change', (e) => {
+            const el: any = e.currentTarget;
+            const lgt: number = el.value;
+            this.onceShipArgs[0] = lgt;
+            let shipPlaceEL: any = document.getElementById('im-ship-place-element');
+            shipPlaceEL.removeAttribute('class');
+            shipPlaceEL.setAttribute('class', 'im-ship-S' + lgt);
+            console.log(shipPlaceEL);
+            //console.log(this.onceShipArgs);
+        }, false);
+        this.rotateShip_AEL();
+    },
+    rotateShip_AEL(): void {
+        const rotateEL: HTMLDivElement = document.querySelector('div.im-rotate-ship');
+        const shipHanger: HTMLDivElement = document.querySelector('div.im-ship-place');
+        let deg: number = 0;
+        let dirSwitch: number = 0;
+        let dir: string = 'R';
+        //let pointSwt: string = 'top';
+        ['click', 'touchend'].forEach((ev) => {
+            rotateEL.addEventListener(ev, () => {
+                // Słicz kierunkowy:
+                deg += 90;
+                rotateEL.style.transform = 'rotate(' + deg + 'deg)';
+                rotateEL.style.transitionDuration = '0.5s';
+                shipHanger.style.transform = 'rotate(' + deg + 'deg)';
+                shipHanger.style.transitionDuration = '0.5s';
+                if (dirSwitch === 0) {
+                    dirSwitch += 1;
+                    dir = 'B';
+                } else if (dirSwitch === 1) {
+                    dirSwitch -= 1;
+                    dir = 'R';
+                }
+                this.onceShipArgs[1] = dir;
+                console.log(this.onceShipArgs);
+                // Ustawianie punktora:
+                const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+                if (this.pointSwt === 'top') {
+                    this.pointSwt = 'right'
+                    point.style.bottom = '0px';
+                    point.style.top = 'auto';
+                } else if (this.pointSwt === 'right') {
+                    this.pointSwt = 'bottom'
+                    point.style.bottom = '0px';
+                    point.style.top = 'auto';
+                } else if (this.pointSwt === 'bottom') {
+                    this.pointSwt = 'left';
+                    point.style.bottom = '0px !important';
+                    point.style.top = '0px';
+                } else if (this.pointSwt === 'left') {
+                    this.pointSwt = 'top';
+                    point.style.bottom = '0px !important';
+                    point.style.top = '0px';
+                }
+            }, false);
+        });
+        this.moveShip_AEL();
+    },
+    moveShip_AEL(): void {
+        const place: HTMLDivElement = document.querySelector('div.im-ship-place');
+        ['click', 'touchend'].forEach((ev) => {
+            place.addEventListener(ev, () => {
+                const shipEL: any = document.getElementById('im-ship-place-element');
+                const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+                shipEL.style.position = 'absolute';
+                if (this.pointSwt === 'top') {
+                    this.pointSwt = 'right'
+                } else if (this.pointSwt === 'right') {
+                    this.pointSwt = 'bottom'
+                } else if (this.pointSwt === 'bottom') {
+                    this.pointSwt = 'left';
+                } else if (this.pointSwt === 'left') {
+                    this.pointSwt = 'top';
+                }
+                setTimeout(() => {
+                    let intr = setInterval(() => {
+                        this.mousemove_AEL();
+                        let x: number = this.mouseCorAR[0];
+                        let y: number = this.mouseCorAR[1];
+                        document.getElementById('clientShow').textContent = x + ' | ' + y;
+                        
+                    x = x - 614;
+                    y = y - 420;
+                        shipEL.style.left = x + 'px';
+                        shipEL.style.top = y + 'px';
+                        shipEL.style.transitionDuration = '0.15s';
+                    }, 100);
+                }, 10);
+            }, false);
+        });
+    },
+    mousemove_AEL() {
+        window.document.addEventListener('mousemove', (e) => {
+            let x = e.clientX;
+            let y = e.clientY;
+            this.mouseCorAR[0] = x;
+            this.mouseCorAR[1] = y;
+        }, false);
     }
 }
-userChooseShipCor.addUserShip();
+userChooseShipCor.addUserShip_AEL();
+userChooseShipCor.selectShip_AEL();
 
 
 
@@ -245,40 +357,57 @@ class UserShipCor implements intf_UserShip {
 const switch_Obj: {
     but: HTMLDivElement,
     startGame: Function,
-    isStart: boolean
+    isStart: string,
+    moveBoard: Function
 } = {
-    isStart: false,
+    isStart: 'no',
     but: document.querySelector('div.click'),
     startGame(): void {
-        let us: any = document.getElementById('bb-1');
-        let com: any = document.getElementById('bb-2');
         ['click', 'touchend'].forEach((ev) => {
             this.but.addEventListener(ev, () => {
-                if (this.isStart === false) {
-                    us.style.right = '0px';
-                    us.style.transitionDuration = '0.5s';
-                    setTimeout(() => {
-                        com.style.right = '0px';
-                        com.style.opacity = '1';
-                        com.style.transitionDuration = '0.5s';
-                        setTimeout(() => {
-                            this.isStart = true;
-                        }, 600);
-                    }, 500);
-                } else if (this.isStart === true) {
-                    com.style.right = '-500px';
-                    com.style.opacity = '0.0';
-                    com.style.transitionDuration = '0.5s';
-                    setTimeout(() => {
-                        us.style.right = '-500px';
-                        us.style.transitionDuration = '0.5s';
-                        setTimeout(() => {
-                            this.isStart = false;
-                        }, 600);
-                    }, 500);
-                }
+                this.moveBoard();
             }, false);
         });
+    },
+    moveBoard(): void {
+        let cntMenu: HTMLDivElement = document.querySelector('div.inside-menu');
+        let us: any = document.getElementById('bb-1');
+        let com: any = document.getElementById('bb-2');
+        if (this.isStart === 'no') {
+            this.isStart = 'pause';
+            cntMenu.style.bottom = '-500px';
+            cntMenu.style.opacity = '0.0';
+            cntMenu.style.transitionDuration = '0.5s';
+            setTimeout(() => {
+                us.style.right = '0px';
+                us.style.transitionDuration = '0.5s';
+                setTimeout(() => {
+                    com.style.right = '0px';
+                    com.style.opacity = '1.0';
+                    com.style.transitionDuration = '0.5s';
+                    setTimeout(() => {
+                        this.isStart = 'yes';
+                    }, 600);
+                }, 500);
+            }, 500);
+        } else if (this.isStart === 'yes') {
+            this.isStart = 'pause';
+            com.style.right = '-500px';
+            com.style.opacity = '0.0';
+            com.style.transitionDuration = '0.5s';
+            setTimeout(() => {
+                us.style.right = '-500px';
+                us.style.transitionDuration = '0.5s';
+                setTimeout(() => {
+                    cntMenu.style.bottom = '0px';
+                    cntMenu.style.opacity = '1.0';
+                    cntMenu.style.transitionDuration = '0.5s';
+                    setTimeout(() => {
+                        this.isStart = 'no';
+                    }, 600);
+                }, 500);
+            }, 500);
+        }
     }
 };
 switch_Obj.startGame();
