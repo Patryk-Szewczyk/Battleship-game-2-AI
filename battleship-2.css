@@ -1,6 +1,5 @@
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@600&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&display=swap');
 
 * {
     box-sizing: border-box;
@@ -14,7 +13,9 @@ body {
     .page {
         width: 100%;
         /*height: TS;*/
+        position: fixed;
         background: radial-gradient(#d0e3f7, #abcff4);
+        z-index: -10;
     }
 
 @media only screen and (min-width: 0px) {
@@ -67,6 +68,133 @@ body {
             margin-right: 40px;
             right: -40%;
         }
+            .inside-menu {
+                width: 420px;
+                height: 420px;
+                position: absolute;
+                left: -500px;
+                bottom: 0px;
+                background-color: rgb(240, 240, 240);
+                border-radius: 10px;
+                box-shadow: 0px 0px 5px 0px #777;
+            }
+                .im-tit {
+                    width: 100%;
+                    height: 70px;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: transparent;
+                    color: #222;
+                    font-family: 'Barlow', sans-serif;
+                    font-size: 135%;
+                    font-weight: 600;
+                }
+                .im-opt-box {
+                    width: 100%;
+                    height: auto;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    border: 0px solid green;
+                }
+                    .im-select-ship {
+                        width: 120px;
+                        height: 30px;
+                        margin-right: 10px;
+                        padding-left: 4px;
+                        border-radius: 5px;
+                        border: 0px solid blue;
+                        box-shadow: 0px 0px 3px 0px #444;
+                        outline: none;
+                        transition-duration: 0.2s;
+                    }
+                    .im-select-ship:focus {
+                        box-shadow: 0px 0px 4px 1px #444;
+                        transition-duration: 0.2s;
+                    }
+                    .im-select-ship:hover, .im-rotate-ship:hover {
+                        cursor: pointer;
+                    }
+                    .im-rotate-ship {
+                        width: 30px;
+                        height: 30px;
+                        margin-left: 10px;
+                        border: 0px solid blue;
+                        transform: rotate(0deg);
+                        transition-duration: 0.5s;
+                    }
+                .im-ship-area {
+                    width: 100%;
+                    height: calc(420px - 70px - 30px - 80px);
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: transparent;
+                    border: 0px solid purple;
+                }
+                    .im-ship-place {
+                        width: auto;
+                        height: auto;
+                        position: relative;
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: center;
+                        align-items: center;
+                        transform: rotate(0deg);
+                        transition-duration: 0.5s;
+                    }
+                    .im-ship-place:hover {
+                        cursor: pointer;
+                    }
+                        #im-ship-place-element {
+                            position: absolute;
+                            top: center;
+                            left: center;
+                        }
+                        .im-ship-S2, .im-ship-S3, .im-ship-S4, .im-ship-S5 {
+                            width: 25px;
+                            display: flex;    /*flex*/
+                            flex-direction: row;
+                            justify-content: center;
+                            align-items: flex-start;
+                            background-color: #c4c4c4;
+                            border-radius: 10px;
+                            border: 3px solid #333;
+                        }
+                        .im-ship-S2 {
+                            height: calc(2 * 22px);
+                        }
+                        .im-ship-S3 {
+                            height: calc(3 * 22px);
+                        }
+                        .im-ship-S4 {
+                            height: calc(4 * 22px);
+                        }
+                        .im-ship-S5 {
+                            height: calc(5 * 22px);
+                        }
+                        .im-ship-place-point {
+                            width: 7px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
+                            height: 7px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
+                            position: absolute;
+                            top: 0px;
+                            bottom: auto;
+                            background-color: red;
+                        }
+                .im-start, .im-submit {
+                    width: 100%;
+                    height: 40px;
+                    display: flex;
+                    flex-direction: row;
+                    justify-content: center;
+                    align-items: flex-start;
+                    background-color: rgba(255,0,0,0.0);
+                    border: 0px solid red;
+                }
         #bb-2 {
             margin-left: 40px;
             opacity: 0.0;
@@ -84,6 +212,7 @@ body {
                     position: relative;
                     background-color: #80a2c7;
                     border-radius: 3px;
+                    z-index: -1;
                 }
                     .board-cor-T {
                         width: 100%;
@@ -112,6 +241,7 @@ body {
                             font-weight: 500;
                             text-transform: uppercase;
                             border-radius: 3px;
+                            z-index: -1;
                         }
                         .bc-T-child {
                             justify-content: center;
@@ -137,6 +267,7 @@ body {
                             font-size: 130%;
                             font-weight: 700;
                             text-transform: uppercase;
+                            z-index: -1;
                         }
                         .board-tit::selection {
                             color: inherit;
