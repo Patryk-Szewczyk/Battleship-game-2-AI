@@ -169,21 +169,24 @@ dangerousFields_Obj.setToBtmAR();
 // Użytkownik - akcje:
 var userChooseShipCor = {
     userShipsAR: [],
-    submitBut: document.querySelector('input.inpSub'),
-    shipLgt: document.querySelector('input.inpLgt'),
-    shipDir: document.querySelector('input.inpDir'),
-    shipStartCor: document.querySelector('input.inpCor'),
+    onceShipArgs: [3, 'B'],
+    submitBut: document.querySelector('div.im-submit'),
+    /*shipLgt: document.querySelector('input.inpLgt'),
+    shipDir: document.querySelector('input.inpDir'),*/
+    //shipStartCor: document.querySelector('input.inpCor'),
     createLimit: 0,
-    addUserShip: function () {
+    pointSwt: 'top',
+    mouseCorAR: [],
+    addUserShip_AEL: function (arg_1) {
         var _this = this;
-        var el = ['click', 'touchend'].forEach(function (ev) {
+        ['click', 'touchend'].forEach(function (ev) {
             _this.submitBut.addEventListener(ev, function () {
                 if (_this.createLimit < 7) {
                     _this.createLimit += 1;
                     var num = _this.createLimit;
-                    var lgt = _this.shipLgt.value;
-                    var dir = _this.shipDir.value;
-                    var cor = _this.shipStartCor.value;
+                    var lgt = _this.shipLgt.value; //this.shipLgt.value
+                    var dir = _this.shipDir.value; //this.shipDir.value
+                    var cor = arg_1; //this.shipStartCor.value
                     var ship = new UserShipCor(num, lgt, dir, cor);
                     _this.userShipsAR.push(ship);
                     console.log(_this.createLimit);
@@ -195,9 +198,122 @@ var userChooseShipCor = {
                 else { }
             }, false);
         });
+    },
+    selectShip_AEL: function () {
+        var _this = this;
+        var selectEL = document.querySelector('select.im-select-ship');
+        selectEL.addEventListener('change', function (e) {
+            var el = e.currentTarget;
+            var lgt = el.value;
+            _this.onceShipArgs[0] = lgt;
+            var shipPlaceEL = document.getElementById('im-ship-place-element');
+            shipPlaceEL.removeAttribute('class');
+            shipPlaceEL.setAttribute('class', 'im-ship-S' + lgt);
+            console.log(shipPlaceEL);
+            //console.log(this.onceShipArgs);
+        }, false);
+        this.rotateShip_AEL();
+    },
+    rotateShip_AEL: function () {
+        var _this = this;
+        var rotateEL = document.querySelector('div.im-rotate-ship');
+        var shipHanger = document.querySelector('div.im-ship-place');
+        var deg = 0;
+        var dirSwitch = 0;
+        var dir = 'R';
+        //let pointSwt: string = 'top';
+        ['click', 'touchend'].forEach(function (ev) {
+            rotateEL.addEventListener(ev, function () {
+                // Słicz kierunkowy:
+                deg += 90;
+                rotateEL.style.transform = 'rotate(' + deg + 'deg)';
+                rotateEL.style.transitionDuration = '0.5s';
+                shipHanger.style.transform = 'rotate(' + deg + 'deg)';
+                shipHanger.style.transitionDuration = '0.5s';
+                if (dirSwitch === 0) {
+                    dirSwitch += 1;
+                    dir = 'B';
+                }
+                else if (dirSwitch === 1) {
+                    dirSwitch -= 1;
+                    dir = 'R';
+                }
+                _this.onceShipArgs[1] = dir;
+                console.log(_this.onceShipArgs);
+                // Ustawianie punktora:
+                var point = document.querySelector('div.im-ship-place-point');
+                if (_this.pointSwt === 'top') {
+                    _this.pointSwt = 'right';
+                    point.style.bottom = '0px';
+                    point.style.top = 'auto';
+                }
+                else if (_this.pointSwt === 'right') {
+                    _this.pointSwt = 'bottom';
+                    point.style.bottom = '0px';
+                    point.style.top = 'auto';
+                }
+                else if (_this.pointSwt === 'bottom') {
+                    _this.pointSwt = 'left';
+                    point.style.bottom = '0px !important';
+                    point.style.top = '0px';
+                }
+                else if (_this.pointSwt === 'left') {
+                    _this.pointSwt = 'top';
+                    point.style.bottom = '0px !important';
+                    point.style.top = '0px';
+                }
+            }, false);
+        });
+        this.moveShip_AEL();
+    },
+    moveShip_AEL: function () {
+        var _this = this;
+        var place = document.querySelector('div.im-ship-place');
+        ['click', 'touchend'].forEach(function (ev) {
+            place.addEventListener(ev, function () {
+                var shipEL = document.getElementById('im-ship-place-element');
+                var point = document.querySelector('div.im-ship-place-point');
+                shipEL.style.position = 'absolute';
+                if (_this.pointSwt === 'top') {
+                    _this.pointSwt = 'right';
+                }
+                else if (_this.pointSwt === 'right') {
+                    _this.pointSwt = 'bottom';
+                }
+                else if (_this.pointSwt === 'bottom') {
+                    _this.pointSwt = 'left';
+                }
+                else if (_this.pointSwt === 'left') {
+                    _this.pointSwt = 'top';
+                }
+                setTimeout(function () {
+                    var intr = setInterval(function () {
+                        _this.mousemove_AEL();
+                        var x = _this.mouseCorAR[0];
+                        var y = _this.mouseCorAR[1];
+                        document.getElementById('clientShow').textContent = x + ' | ' + y;
+                        x = x - 614;
+                        y = y - 420;
+                        shipEL.style.left = x + 'px';
+                        shipEL.style.top = y + 'px';
+                        shipEL.style.transitionDuration = '0.15s';
+                    }, 100);
+                }, 10);
+            }, false);
+        });
+    },
+    mousemove_AEL: function () {
+        var _this = this;
+        window.document.addEventListener('mousemove', function (e) {
+            var x = e.clientX;
+            var y = e.clientY;
+            _this.mouseCorAR[0] = x;
+            _this.mouseCorAR[1] = y;
+        }, false);
     }
 };
-userChooseShipCor.addUserShip();
+userChooseShipCor.addUserShip_AEL();
+userChooseShipCor.selectShip_AEL();
 ;
 var UserShipCor = /** @class */ (function () {
     function UserShipCor(arg_1, arg_2, arg_3, arg_4) {
@@ -211,40 +327,57 @@ var UserShipCor = /** @class */ (function () {
 }());
 ;
 var switch_Obj = {
-    isStart: false,
+    isStart: 'no',
     but: document.querySelector('div.click'),
     startGame: function () {
         var _this = this;
-        var us = document.getElementById('bb-1');
-        var com = document.getElementById('bb-2');
         ['click', 'touchend'].forEach(function (ev) {
             _this.but.addEventListener(ev, function () {
-                if (_this.isStart === false) {
-                    us.style.right = '0px';
-                    us.style.transitionDuration = '0.5s';
-                    setTimeout(function () {
-                        com.style.right = '0px';
-                        com.style.opacity = '1';
-                        com.style.transitionDuration = '0.5s';
-                        setTimeout(function () {
-                            _this.isStart = true;
-                        }, 600);
-                    }, 500);
-                }
-                else if (_this.isStart === true) {
-                    com.style.right = '-500px';
-                    com.style.opacity = '0.0';
-                    com.style.transitionDuration = '0.5s';
-                    setTimeout(function () {
-                        us.style.right = '-500px';
-                        us.style.transitionDuration = '0.5s';
-                        setTimeout(function () {
-                            _this.isStart = false;
-                        }, 600);
-                    }, 500);
-                }
+                _this.moveBoard();
             }, false);
         });
+    },
+    moveBoard: function () {
+        var _this = this;
+        var cntMenu = document.querySelector('div.inside-menu');
+        var us = document.getElementById('bb-1');
+        var com = document.getElementById('bb-2');
+        if (this.isStart === 'no') {
+            this.isStart = 'pause';
+            cntMenu.style.bottom = '-500px';
+            cntMenu.style.opacity = '0.0';
+            cntMenu.style.transitionDuration = '0.5s';
+            setTimeout(function () {
+                us.style.right = '0px';
+                us.style.transitionDuration = '0.5s';
+                setTimeout(function () {
+                    com.style.right = '0px';
+                    com.style.opacity = '1.0';
+                    com.style.transitionDuration = '0.5s';
+                    setTimeout(function () {
+                        _this.isStart = 'yes';
+                    }, 600);
+                }, 500);
+            }, 500);
+        }
+        else if (this.isStart === 'yes') {
+            this.isStart = 'pause';
+            com.style.right = '-500px';
+            com.style.opacity = '0.0';
+            com.style.transitionDuration = '0.5s';
+            setTimeout(function () {
+                us.style.right = '-500px';
+                us.style.transitionDuration = '0.5s';
+                setTimeout(function () {
+                    cntMenu.style.bottom = '0px';
+                    cntMenu.style.opacity = '1.0';
+                    cntMenu.style.transitionDuration = '0.5s';
+                    setTimeout(function () {
+                        _this.isStart = 'no';
+                    }, 600);
+                }, 500);
+            }, 500);
+        }
     }
 };
 switch_Obj.startGame();
