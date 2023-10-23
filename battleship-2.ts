@@ -175,6 +175,54 @@ dangerousFields_Obj.setToBtmAR();
 
 
 
+const fieldsPosition_Obj: {
+    fieldsPosARS: number[];   //{[index: string]: number[]}
+    getFieldsPos: Function
+} = {
+    fieldsPosARS: [],   //{}
+    getFieldsPos(): void {
+        // Pobranie dzieci "pól" z planszy użytkownaika":
+        const board: any = document.querySelectorAll('div.board-prp')[0];
+        const onceBoardChilred: HTMLCollection = board.children;
+        const boardsWithELS: any[] = [];
+        for (let i: number = 1; i < board.childElementCount; i++) {
+            boardsWithELS[i - 1] = onceBoardChilred[i];
+        };
+        //console.log(boardsWithELS);
+        // - - - - - - - - - - - - - - - - - - - - - - -
+        // Pobranie dzieci "pól" poszczególnych planszy
+        /*const boards: NodeListOf<HTMLDivElement> = document.querySelectorAll('div.board-prp');
+        const onceBoardChilred: any[] = [];
+        const boardsWithELS: any[][] = [[]];
+        for (let i: number = 0; i < 2; i++) {
+            onceBoardChilred[i] = boards[i].children;
+            boardsWithELS[i] = [];
+            for (let j: number = 0; j < 100; j++) {
+                boardsWithELS[i][j] = onceBoardChilred[i][j];
+            };
+        };
+        boardsWithELS[0].shift();
+        console.log(boardsWithELS);*/
+        // - - - - - - - - - - - - - - - - - - - - - - -
+        // Pobranie współrzędnych poszczególnych dzieci "pól" poszczególnych plansz:
+        const areasCorAR: number[][] = [[]];
+        for (let i: number = 0; i < boardsWithELS.length; i++) {
+            let rectOBJ: {[index: string]: number} = boardsWithELS[i].getBoundingClientRect();
+            areasCorAR[i] = [];
+            areasCorAR[i][0] = rectOBJ.top;
+            areasCorAR[i][1] = rectOBJ.bottom;
+            areasCorAR[i][2] = rectOBJ.left;
+            areasCorAR[i][3] = rectOBJ.right;
+            this.fieldsPosARS[i] = areasCorAR[i];
+        };
+        console.log(areasCorAR);
+        console.log(this.fieldsPosARS);
+    }
+};
+fieldsPosition_Obj.getFieldsPos();
+
+
+
 // Użytkownik - akcje:
 const userChooseShipCor: {
     userShipsAR: UserShipCor[],
@@ -188,15 +236,18 @@ const userChooseShipCor: {
     selectShip_AEL: Function,
     rotateShip_AEL: Function,
     pointSwt: string,
+    createAvailableFields: Function,
     moveShip_AEL: Function,
     mousemove_AEL: Function,
     placeShipSwitch: boolean,
     mouseXcor: number,
-    mouseYcor: number
-    //mouseCorAR: number[]
+    mouseYcor: number,
+    shpPlcPtBCR: number[],
+    availableFields: number[],
+    setShip_AEL: Function
 } = {
     userShipsAR: [],
-    onceShipArgs: [3, 'B'],
+    onceShipArgs: [3, 'B'],   // [3, 'B', 42]
     submitBut: document.querySelector('div.im-submit'),
     /*shipLgt: document.querySelector('input.inpLgt'),
     shipDir: document.querySelector('input.inpDir'),*/
@@ -206,7 +257,8 @@ const userChooseShipCor: {
     placeShipSwitch: true,
     mouseXcor: 0,
     mouseYcor: 0,
-    //mouseCorAR: [],
+    shpPlcPtBCR: [],
+    availableFields: [],
     addUserShip_AEL(arg_1):void {
         ['click', 'touchend'].forEach((ev) => {
             this.submitBut.addEventListener(ev, () => {
@@ -230,7 +282,7 @@ const userChooseShipCor: {
         const selectEL: HTMLSelectElement = document.querySelector('select.im-select-ship');
         selectEL.addEventListener('change', (e) => {
             const el: any = e.currentTarget;
-            const lgt: number = el.value;
+            let lgt: number = el.value;
             this.onceShipArgs[0] = lgt;
             let shipPlaceEL: any = document.getElementById('im-ship-place-element');
             let shipGlobalEL: any = document.getElementById('im-ship-global-element');
@@ -240,6 +292,7 @@ const userChooseShipCor: {
             shipGlobalEL.setAttribute('class', 'im-ship-S' + lgt);
             console.log(shipPlaceEL);
             //console.log(this.onceShipArgs);
+            this.createAvailableFields();
         }, false);
         this.rotateShip_AEL();
     },
@@ -249,7 +302,7 @@ const userChooseShipCor: {
         const shipHanger: HTMLDivElement = document.querySelector('div.im-ship-place');
         let deg: number = 0;
         let dirSwitch: number = 0;
-        let dir: string = 'R';
+        let dir: string = 'B';
         //let pointSwt: string = 'top';
         ['click', 'touchend'].forEach((ev) => {
             rotateLocalEL.addEventListener(ev, () => {
@@ -263,15 +316,16 @@ const userChooseShipCor: {
                 shipHanger.style.transitionDuration = '0.5s';
                 if (dirSwitch === 0) {
                     dirSwitch += 1;
-                    dir = 'B';
+                    dir = 'R';
                 } else if (dirSwitch === 1) {
                     dirSwitch -= 1;
-                    dir = 'R';
+                    dir = 'B';
                 }
                 this.onceShipArgs[1] = dir;
+                this.createAvailableFields();
                 console.log(this.onceShipArgs);
                 // Ustawianie punktora:
-                const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+                const point: any = document.getElementById('im-ship-place-point');
                 if (this.pointSwt === 'top') {
                     this.pointSwt = 'right'
                     point.style.bottom = '0px';
@@ -293,6 +347,43 @@ const userChooseShipCor: {
         });
         this.moveShip_AEL();
     },
+    createAvailableFields(): void {
+        // Dostępne pola:
+        let avlFldIdx: number = this.onceShipArgs[0] - 2;
+        let selectedTable_dir_B: number[] = dangerousFields_Obj.dir_B[avlFldIdx];
+        let selectedTable_dir_R: number[] = dangerousFields_Obj.dir_R[avlFldIdx];
+        let newArr: number[] = [];
+        // Tworzenie nowej tablicy:
+        for (let i: number = 0; i < 100; i++) {
+            newArr[i] = i;
+        };
+        // Czy wartość inputa "select" nie jest równa: "nie wybrano":
+        if (this.onceShipArgs[0] !== 'nie wybrano') {
+            // Kasowanie niedozwolonych indeksów w nowo-utworzonej tablicy, w zależności
+            // od długości statku i jego położenia:
+            if (this.onceShipArgs[1] === 'B') {
+                for (let i: number = 0; i < 100; i++) {
+                    for (let j: number = 0; j < selectedTable_dir_B.length; j++) {
+                        if (newArr[i] == selectedTable_dir_B[j]) {
+                            let elLoc: number = newArr.indexOf(selectedTable_dir_B[j]);
+                            newArr.splice(elLoc, 1);
+                        } else {}
+                    };
+                };
+            } else if (this.onceShipArgs[1] === 'R') {
+                for (let i: number = 0; i < 100; i++) {
+                    for (let j: number = 0; j < selectedTable_dir_R.length; j++) {
+                        if (newArr[i] == selectedTable_dir_R[j]) {
+                            let elLoc: number = newArr.indexOf(selectedTable_dir_R[j]);
+                            newArr.splice(elLoc, 1);
+                        } else {}
+                    };
+                };
+            }
+        } else {}
+        this.availableFields = newArr;
+        console.log(this.availableFields);    /*ARRAY_FIELDS CONSOLLOG*/
+    },
     moveShip_AEL(): void {
         const place: HTMLDivElement = document.querySelector('div.im-ship-place');
         ['click', 'touchend'].forEach((ev) => {
@@ -303,11 +394,10 @@ const userChooseShipCor: {
                     shipLocalEL.style.display = 'none';
                     const shipGlobalEL: any = document.getElementById('im-ship-global-element');
                     shipGlobalEL.style.display = 'flex';   // MEGA WAŻNE!
-                    let shipELDim = shipGlobalEL.getBoundingClientRect();
+                    let shipELDim: any = shipGlobalEL.getBoundingClientRect();
                     let shipELDim_wdt = shipELDim.width;
                     let shipELDim_hgt = shipELDim.height;
-                    document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
-                    const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+                    //document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
                     if (this.pointSwt === 'top' || this.pointSwt === 'bottom') {
                         this.mouseXcor = this.mouseXcor - (shipELDim_wdt / 2);
                         this.mouseYcor = this.mouseYcor - (shipELDim_hgt / 2);
@@ -324,14 +414,15 @@ const userChooseShipCor: {
     },
     mousemove_AEL() {
         window.document.addEventListener('mousemove', (e) => {
-            this.mouseXcor = e.clientX;  //GGLOBAL ZROB
+            console.log(this.placeShipSwitch);
+            // Pseudo-ruszanie statkiem:
+            this.mouseXcor = e.clientX;
             this.mouseYcor = e.clientY;
             const shipEL: any = document.getElementById('im-ship-global-element');
-            let shipELDim = shipEL.getBoundingClientRect();
+            let shipELDim: any = shipEL.getBoundingClientRect();
             let shipELDim_wdt = shipELDim.width;
             let shipELDim_hgt = shipELDim.height;
-            document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
-            const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+            //document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
             if (this.pointSwt === 'top' || this.pointSwt === 'bottom') {
                 this.mouseXcor = this.mouseXcor - (shipELDim_wdt / 2);
                 this.mouseYcor = this.mouseYcor - (shipELDim_hgt / 2);
@@ -342,12 +433,39 @@ const userChooseShipCor: {
             shipEL.style.left = this.mouseXcor + 'px';
             shipEL.style.top = this.mouseYcor + 'px';
             shipEL.style.transitionDuration = '0.0s';
+            // Współżędne punktu początkowego położenia statku:
+            const shipPlacePoint: any = document.getElementById('im-ship-place-point');
+            this.shpPlcPtBCR = shipPlacePoint.getBoundingClientRect();
+            let shpPlcPt_X = this.shpPlcPtBCR.x;
+            let shpPlcPt_y = this.shpPlcPtBCR.y;
+            document.getElementById('clientShow').innerHTML = ' - Pointer: x: ' + shpPlcPt_X + ' | y: ' + shpPlcPt_y;
         }, false);
+    },
+    setShip_AEL(): void {   // W PRODUKCJI: pełne skupienie
+        ['click', 'touchstart'].forEach((ev) => {
+            window.addEventListener(ev, () => {
+                const userBoardEL = document.querySelectorAll('div.board-prp')[0];
+                const userBoardEL_RECT: any = userBoardEL.getBoundingClientRect();
+                let usrBrd_Top = userBoardEL_RECT.top;
+                let usrBrd_Bottom = userBoardEL_RECT.bottom;
+                let usrBrd_Left = userBoardEL_RECT.left;
+                let usrBrd_Right = userBoardEL_RECT.right;
+                let plcPnt_X = this.shpPlcPtBCR.x;
+                let plcPnt_Y = this.shpPlcPtBCR.y;
+                //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
+                if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
+                    alert('Statek znajduje się na planszy!');
+                } else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && this.placeShipSwitch === false) {
+                    alert('Statek jest poza planszą!');
+                }
+            }, false);
+        });
     }
 }
 userChooseShipCor.addUserShip_AEL();
 userChooseShipCor.selectShip_AEL();
 userChooseShipCor.mousemove_AEL();
+userChooseShipCor.setShip_AEL();
 
 
 
