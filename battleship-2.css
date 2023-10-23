@@ -19,6 +19,18 @@ body {
     }
 
 @media only screen and (min-width: 0px) {
+    #im-ship-global-element {
+        position: absolute;
+        z-index: 30;
+        top: 0px;
+        left: 0px;
+        display: none;   /*flex*/
+        transform: rotate(0deg);
+        transition-duration: 0.5s;
+    }
+    #im-ship-global-element:hover {
+        cursor: grab;
+    }
     .header {
         width: 100%;
         height: 100px;
@@ -148,7 +160,7 @@ body {
                         transition-duration: 0.5s;
                     }
                     .im-ship-place:hover {
-                        cursor: pointer;
+                        cursor: grab;
                     }
                         #im-ship-place-element {
                             position: absolute;
@@ -156,7 +168,7 @@ body {
                             left: center;
                         }
                         .im-ship-S2, .im-ship-S3, .im-ship-S4, .im-ship-S5 {
-                            width: 25px;
+                            width: 26px;
                             display: flex;    /*flex*/
                             flex-direction: row;
                             justify-content: center;
@@ -166,16 +178,16 @@ body {
                             border: 3px solid #333;
                         }
                         .im-ship-S2 {
-                            height: calc(2 * 22px);
+                            height: calc(2 * 35px);
                         }
                         .im-ship-S3 {
-                            height: calc(3 * 22px);
+                            height: calc(3 * 36px);
                         }
                         .im-ship-S4 {
-                            height: calc(4 * 22px);
+                            height: calc(4 * 37px);
                         }
                         .im-ship-S5 {
-                            height: calc(5 * 22px);
+                            height: calc(5 * 38px);
                         }
                         .im-ship-place-point {
                             width: 7px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
