@@ -5,4 +5,4 @@ This is my currently most complex project ever. Battleship game 2 is simple trad
 
 WARNING: This game is in produkction, so you don't see full game content.
 
-Link to my game: https://patryk-szewczyk.github.io/Battleships-game-2-AI/battleship-2.html
+Link to my game: https://patryk-szewczyk.github.io/Battleship-game-2-AI/battleship-2.html
