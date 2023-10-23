@@ -176,7 +176,10 @@ var userChooseShipCor = {
     //shipStartCor: document.querySelector('input.inpCor'),
     createLimit: 0,
     pointSwt: 'top',
-    mouseCorAR: [],
+    placeShipSwitch: true,
+    mouseXcor: 0,
+    mouseYcor: 0,
+    //mouseCorAR: [],
     addUserShip_AEL: function (arg_1) {
         var _this = this;
         ['click', 'touchend'].forEach(function (ev) {
@@ -207,8 +210,11 @@ var userChooseShipCor = {
             var lgt = el.value;
             _this.onceShipArgs[0] = lgt;
             var shipPlaceEL = document.getElementById('im-ship-place-element');
+            var shipGlobalEL = document.getElementById('im-ship-global-element');
             shipPlaceEL.removeAttribute('class');
+            shipGlobalEL.removeAttribute('class');
             shipPlaceEL.setAttribute('class', 'im-ship-S' + lgt);
+            shipGlobalEL.setAttribute('class', 'im-ship-S' + lgt);
             console.log(shipPlaceEL);
             //console.log(this.onceShipArgs);
         }, false);
@@ -216,18 +222,21 @@ var userChooseShipCor = {
     },
     rotateShip_AEL: function () {
         var _this = this;
-        var rotateEL = document.querySelector('div.im-rotate-ship');
+        var rotateLocalEL = document.querySelector('div.im-rotate-ship');
+        var rotateGlobalEL = document.getElementById('im-ship-global-element');
         var shipHanger = document.querySelector('div.im-ship-place');
         var deg = 0;
         var dirSwitch = 0;
         var dir = 'R';
         //let pointSwt: string = 'top';
         ['click', 'touchend'].forEach(function (ev) {
-            rotateEL.addEventListener(ev, function () {
+            rotateLocalEL.addEventListener(ev, function () {
                 // Słicz kierunkowy:
                 deg += 90;
-                rotateEL.style.transform = 'rotate(' + deg + 'deg)';
-                rotateEL.style.transitionDuration = '0.5s';
+                rotateLocalEL.style.transform = 'rotate(' + deg + 'deg)';
+                rotateLocalEL.style.transitionDuration = '0.5s';
+                rotateGlobalEL.style.transform = 'rotate(' + deg + 'deg)';
+                rotateGlobalEL.style.transitionDuration = '0.5s';
                 shipHanger.style.transform = 'rotate(' + deg + 'deg)';
                 shipHanger.style.transitionDuration = '0.5s';
                 if (dirSwitch === 0) {
@@ -271,49 +280,61 @@ var userChooseShipCor = {
         var place = document.querySelector('div.im-ship-place');
         ['click', 'touchend'].forEach(function (ev) {
             place.addEventListener(ev, function () {
-                var shipEL = document.getElementById('im-ship-place-element');
-                var point = document.querySelector('div.im-ship-place-point');
-                shipEL.style.position = 'absolute';
-                if (_this.pointSwt === 'top') {
-                    _this.pointSwt = 'right';
+                if (_this.placeShipSwitch === true) {
+                    _this.placeShipSwitch = false;
+                    var shipLocalEL = document.getElementById('im-ship-place-element');
+                    shipLocalEL.style.display = 'none';
+                    var shipGlobalEL = document.getElementById('im-ship-global-element');
+                    shipGlobalEL.style.display = 'flex'; // MEGA WAŻNE!
+                    var shipELDim = shipGlobalEL.getBoundingClientRect();
+                    var shipELDim_wdt = shipELDim.width;
+                    var shipELDim_hgt = shipELDim.height;
+                    document.getElementById('clientShow').textContent = _this.mouseXcor + ' | ' + _this.mouseYcor;
+                    var point = document.querySelector('div.im-ship-place-point');
+                    if (_this.pointSwt === 'top' || _this.pointSwt === 'bottom') {
+                        _this.mouseXcor = _this.mouseXcor - (shipELDim_wdt / 2);
+                        _this.mouseYcor = _this.mouseYcor - (shipELDim_hgt / 2);
+                    }
+                    else if (_this.pointSwt === 'right' || _this.pointSwt === 'left') {
+                        _this.mouseXcor = _this.mouseXcor - (shipELDim_hgt / 2);
+                        _this.mouseYcor = _this.mouseYcor - (shipELDim_wdt / 2);
+                    }
+                    shipGlobalEL.style.left = _this.mouseXcor + 'px';
+                    shipGlobalEL.style.top = _this.mouseYcor + 'px';
+                    shipGlobalEL.style.transitionDuration = '0.0s';
                 }
-                else if (_this.pointSwt === 'right') {
-                    _this.pointSwt = 'bottom';
-                }
-                else if (_this.pointSwt === 'bottom') {
-                    _this.pointSwt = 'left';
-                }
-                else if (_this.pointSwt === 'left') {
-                    _this.pointSwt = 'top';
-                }
-                setTimeout(function () {
-                    var intr = setInterval(function () {
-                        _this.mousemove_AEL();
-                        var x = _this.mouseCorAR[0];
-                        var y = _this.mouseCorAR[1];
-                        document.getElementById('clientShow').textContent = x + ' | ' + y;
-                        x = x - 614;
-                        y = y - 420;
-                        shipEL.style.left = x + 'px';
-                        shipEL.style.top = y + 'px';
-                        shipEL.style.transitionDuration = '0.15s';
-                    }, 100);
-                }, 10);
+                else { }
             }, false);
         });
     },
     mousemove_AEL: function () {
         var _this = this;
         window.document.addEventListener('mousemove', function (e) {
-            var x = e.clientX;
-            var y = e.clientY;
-            _this.mouseCorAR[0] = x;
-            _this.mouseCorAR[1] = y;
+            _this.mouseXcor = e.clientX; //GGLOBAL ZROB
+            _this.mouseYcor = e.clientY;
+            var shipEL = document.getElementById('im-ship-global-element');
+            var shipELDim = shipEL.getBoundingClientRect();
+            var shipELDim_wdt = shipELDim.width;
+            var shipELDim_hgt = shipELDim.height;
+            document.getElementById('clientShow').textContent = _this.mouseXcor + ' | ' + _this.mouseYcor;
+            var point = document.querySelector('div.im-ship-place-point');
+            if (_this.pointSwt === 'top' || _this.pointSwt === 'bottom') {
+                _this.mouseXcor = _this.mouseXcor - (shipELDim_wdt / 2);
+                _this.mouseYcor = _this.mouseYcor - (shipELDim_hgt / 2);
+            }
+            else if (_this.pointSwt === 'right' || _this.pointSwt === 'left') {
+                _this.mouseXcor = _this.mouseXcor - (shipELDim_hgt / 2);
+                _this.mouseYcor = _this.mouseYcor - (shipELDim_wdt / 2);
+            }
+            shipEL.style.left = _this.mouseXcor + 'px';
+            shipEL.style.top = _this.mouseYcor + 'px';
+            shipEL.style.transitionDuration = '0.0s';
         }, false);
     }
 };
 userChooseShipCor.addUserShip_AEL();
 userChooseShipCor.selectShip_AEL();
+userChooseShipCor.mousemove_AEL();
 ;
 var UserShipCor = /** @class */ (function () {
     function UserShipCor(arg_1, arg_2, arg_3, arg_4) {
