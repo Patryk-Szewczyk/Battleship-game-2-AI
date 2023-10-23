@@ -166,6 +166,50 @@ var dangerousFields_Obj = {
     }
 };
 dangerousFields_Obj.setToBtmAR();
+var fieldsPosition_Obj = {
+    fieldsPosARS: [],
+    getFieldsPos: function () {
+        // Pobranie dzieci "pól" z planszy użytkownaika":
+        var board = document.querySelectorAll('div.board-prp')[0];
+        var onceBoardChilred = board.children;
+        var boardsWithELS = [];
+        for (var i = 1; i < board.childElementCount; i++) {
+            boardsWithELS[i - 1] = onceBoardChilred[i];
+        }
+        ;
+        //console.log(boardsWithELS);
+        // - - - - - - - - - - - - - - - - - - - - - - -
+        // Pobranie dzieci "pól" poszczególnych planszy
+        /*const boards: NodeListOf<HTMLDivElement> = document.querySelectorAll('div.board-prp');
+        const onceBoardChilred: any[] = [];
+        const boardsWithELS: any[][] = [[]];
+        for (let i: number = 0; i < 2; i++) {
+            onceBoardChilred[i] = boards[i].children;
+            boardsWithELS[i] = [];
+            for (let j: number = 0; j < 100; j++) {
+                boardsWithELS[i][j] = onceBoardChilred[i][j];
+            };
+        };
+        boardsWithELS[0].shift();
+        console.log(boardsWithELS);*/
+        // - - - - - - - - - - - - - - - - - - - - - - -
+        // Pobranie współrzędnych poszczególnych dzieci "pól" poszczególnych plansz:
+        var areasCorAR = [[]];
+        for (var i = 0; i < boardsWithELS.length; i++) {
+            var rectOBJ = boardsWithELS[i].getBoundingClientRect();
+            areasCorAR[i] = [];
+            areasCorAR[i][0] = rectOBJ.top;
+            areasCorAR[i][1] = rectOBJ.bottom;
+            areasCorAR[i][2] = rectOBJ.left;
+            areasCorAR[i][3] = rectOBJ.right;
+            this.fieldsPosARS[i] = areasCorAR[i];
+        }
+        ;
+        console.log(areasCorAR);
+        console.log(this.fieldsPosARS);
+    }
+};
+fieldsPosition_Obj.getFieldsPos();
 // Użytkownik - akcje:
 var userChooseShipCor = {
     userShipsAR: [],
@@ -179,7 +223,8 @@ var userChooseShipCor = {
     placeShipSwitch: true,
     mouseXcor: 0,
     mouseYcor: 0,
-    //mouseCorAR: [],
+    shpPlcPtBCR: [],
+    availableFields: [],
     addUserShip_AEL: function (arg_1) {
         var _this = this;
         ['click', 'touchend'].forEach(function (ev) {
@@ -217,6 +262,7 @@ var userChooseShipCor = {
             shipGlobalEL.setAttribute('class', 'im-ship-S' + lgt);
             console.log(shipPlaceEL);
             //console.log(this.onceShipArgs);
+            _this.createAvailableFields();
         }, false);
         this.rotateShip_AEL();
     },
@@ -227,7 +273,7 @@ var userChooseShipCor = {
         var shipHanger = document.querySelector('div.im-ship-place');
         var deg = 0;
         var dirSwitch = 0;
-        var dir = 'R';
+        var dir = 'B';
         //let pointSwt: string = 'top';
         ['click', 'touchend'].forEach(function (ev) {
             rotateLocalEL.addEventListener(ev, function () {
@@ -241,16 +287,17 @@ var userChooseShipCor = {
                 shipHanger.style.transitionDuration = '0.5s';
                 if (dirSwitch === 0) {
                     dirSwitch += 1;
-                    dir = 'B';
+                    dir = 'R';
                 }
                 else if (dirSwitch === 1) {
                     dirSwitch -= 1;
-                    dir = 'R';
+                    dir = 'B';
                 }
                 _this.onceShipArgs[1] = dir;
+                _this.createAvailableFields();
                 console.log(_this.onceShipArgs);
                 // Ustawianie punktora:
-                var point = document.querySelector('div.im-ship-place-point');
+                var point = document.getElementById('im-ship-place-point');
                 if (_this.pointSwt === 'top') {
                     _this.pointSwt = 'right';
                     point.style.bottom = '0px';
@@ -275,6 +322,52 @@ var userChooseShipCor = {
         });
         this.moveShip_AEL();
     },
+    createAvailableFields: function () {
+        // Dostępne pola:
+        var avlFldIdx = this.onceShipArgs[0] - 2;
+        var selectedTable_dir_B = dangerousFields_Obj.dir_B[avlFldIdx];
+        var selectedTable_dir_R = dangerousFields_Obj.dir_R[avlFldIdx];
+        var newArr = [];
+        // Tworzenie nowej tablicy:
+        for (var i = 0; i < 100; i++) {
+            newArr[i] = i;
+        }
+        ;
+        // Czy wartość inputa "select" nie jest równa: "nie wybrano":
+        if (this.onceShipArgs[0] !== 'nie wybrano') {
+            // Kasowanie niedozwolonych indeksów w nowo-utworzonej tablicy, w zależności
+            // od długości statku i jego położenia:
+            if (this.onceShipArgs[1] === 'B') {
+                for (var i = 0; i < 100; i++) {
+                    for (var j = 0; j < selectedTable_dir_B.length; j++) {
+                        if (newArr[i] == selectedTable_dir_B[j]) {
+                            var elLoc = newArr.indexOf(selectedTable_dir_B[j]);
+                            newArr.splice(elLoc, 1);
+                        }
+                        else { }
+                    }
+                    ;
+                }
+                ;
+            }
+            else if (this.onceShipArgs[1] === 'R') {
+                for (var i = 0; i < 100; i++) {
+                    for (var j = 0; j < selectedTable_dir_R.length; j++) {
+                        if (newArr[i] == selectedTable_dir_R[j]) {
+                            var elLoc = newArr.indexOf(selectedTable_dir_R[j]);
+                            newArr.splice(elLoc, 1);
+                        }
+                        else { }
+                    }
+                    ;
+                }
+                ;
+            }
+        }
+        else { }
+        this.availableFields = newArr;
+        console.log(this.availableFields); /*ARRAY_FIELDS CONSOLLOG*/
+    },
     moveShip_AEL: function () {
         var _this = this;
         var place = document.querySelector('div.im-ship-place');
@@ -289,8 +382,7 @@ var userChooseShipCor = {
                     var shipELDim = shipGlobalEL.getBoundingClientRect();
                     var shipELDim_wdt = shipELDim.width;
                     var shipELDim_hgt = shipELDim.height;
-                    document.getElementById('clientShow').textContent = _this.mouseXcor + ' | ' + _this.mouseYcor;
-                    var point = document.querySelector('div.im-ship-place-point');
+                    //document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
                     if (_this.pointSwt === 'top' || _this.pointSwt === 'bottom') {
                         _this.mouseXcor = _this.mouseXcor - (shipELDim_wdt / 2);
                         _this.mouseYcor = _this.mouseYcor - (shipELDim_hgt / 2);
@@ -310,14 +402,15 @@ var userChooseShipCor = {
     mousemove_AEL: function () {
         var _this = this;
         window.document.addEventListener('mousemove', function (e) {
-            _this.mouseXcor = e.clientX; //GGLOBAL ZROB
+            console.log(_this.placeShipSwitch);
+            // Pseudo-ruszanie statkiem:
+            _this.mouseXcor = e.clientX;
             _this.mouseYcor = e.clientY;
             var shipEL = document.getElementById('im-ship-global-element');
             var shipELDim = shipEL.getBoundingClientRect();
             var shipELDim_wdt = shipELDim.width;
             var shipELDim_hgt = shipELDim.height;
-            document.getElementById('clientShow').textContent = _this.mouseXcor + ' | ' + _this.mouseYcor;
-            var point = document.querySelector('div.im-ship-place-point');
+            //document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
             if (_this.pointSwt === 'top' || _this.pointSwt === 'bottom') {
                 _this.mouseXcor = _this.mouseXcor - (shipELDim_wdt / 2);
                 _this.mouseYcor = _this.mouseYcor - (shipELDim_hgt / 2);
@@ -329,12 +422,41 @@ var userChooseShipCor = {
             shipEL.style.left = _this.mouseXcor + 'px';
             shipEL.style.top = _this.mouseYcor + 'px';
             shipEL.style.transitionDuration = '0.0s';
+            // Współżędne punktu początkowego położenia statku:
+            var shipPlacePoint = document.getElementById('im-ship-place-point');
+            _this.shpPlcPtBCR = shipPlacePoint.getBoundingClientRect();
+            var shpPlcPt_X = _this.shpPlcPtBCR.x;
+            var shpPlcPt_y = _this.shpPlcPtBCR.y;
+            document.getElementById('clientShow').innerHTML = ' - Pointer: x: ' + shpPlcPt_X + ' | y: ' + shpPlcPt_y;
         }, false);
+    },
+    setShip_AEL: function () {
+        var _this = this;
+        ['click', 'touchstart'].forEach(function (ev) {
+            window.addEventListener(ev, function () {
+                var userBoardEL = document.querySelectorAll('div.board-prp')[0];
+                var userBoardEL_RECT = userBoardEL.getBoundingClientRect();
+                var usrBrd_Top = userBoardEL_RECT.top;
+                var usrBrd_Bottom = userBoardEL_RECT.bottom;
+                var usrBrd_Left = userBoardEL_RECT.left;
+                var usrBrd_Right = userBoardEL_RECT.right;
+                var plcPnt_X = _this.shpPlcPtBCR.x;
+                var plcPnt_Y = _this.shpPlcPtBCR.y;
+                //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
+                if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
+                    alert('Statek znajduje się na planszy!');
+                }
+                else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && _this.placeShipSwitch === false) {
+                    alert('Statek jest poza planszą!');
+                }
+            }, false);
+        });
     }
 };
 userChooseShipCor.addUserShip_AEL();
 userChooseShipCor.selectShip_AEL();
 userChooseShipCor.mousemove_AEL();
+userChooseShipCor.setShip_AEL();
 ;
 var UserShipCor = /** @class */ (function () {
     function UserShipCor(arg_1, arg_2, arg_3, arg_4) {
