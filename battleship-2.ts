@@ -190,7 +190,10 @@ const userChooseShipCor: {
     pointSwt: string,
     moveShip_AEL: Function,
     mousemove_AEL: Function,
-    mouseCorAR: number[]
+    placeShipSwitch: boolean,
+    mouseXcor: number,
+    mouseYcor: number
+    //mouseCorAR: number[]
 } = {
     userShipsAR: [],
     onceShipArgs: [3, 'B'],
@@ -200,7 +203,10 @@ const userChooseShipCor: {
     //shipStartCor: document.querySelector('input.inpCor'),
     createLimit: 0,
     pointSwt: 'top',
-    mouseCorAR: [],
+    placeShipSwitch: true,
+    mouseXcor: 0,
+    mouseYcor: 0,
+    //mouseCorAR: [],
     addUserShip_AEL(arg_1):void {
         ['click', 'touchend'].forEach((ev) => {
             this.submitBut.addEventListener(ev, () => {
@@ -227,26 +233,32 @@ const userChooseShipCor: {
             const lgt: number = el.value;
             this.onceShipArgs[0] = lgt;
             let shipPlaceEL: any = document.getElementById('im-ship-place-element');
+            let shipGlobalEL: any = document.getElementById('im-ship-global-element');
             shipPlaceEL.removeAttribute('class');
+            shipGlobalEL.removeAttribute('class');
             shipPlaceEL.setAttribute('class', 'im-ship-S' + lgt);
+            shipGlobalEL.setAttribute('class', 'im-ship-S' + lgt);
             console.log(shipPlaceEL);
             //console.log(this.onceShipArgs);
         }, false);
         this.rotateShip_AEL();
     },
     rotateShip_AEL(): void {
-        const rotateEL: HTMLDivElement = document.querySelector('div.im-rotate-ship');
+        const rotateLocalEL: HTMLDivElement = document.querySelector('div.im-rotate-ship');
+        const rotateGlobalEL: any = document.getElementById('im-ship-global-element');
         const shipHanger: HTMLDivElement = document.querySelector('div.im-ship-place');
         let deg: number = 0;
         let dirSwitch: number = 0;
         let dir: string = 'R';
         //let pointSwt: string = 'top';
         ['click', 'touchend'].forEach((ev) => {
-            rotateEL.addEventListener(ev, () => {
+            rotateLocalEL.addEventListener(ev, () => {
                 // Słicz kierunkowy:
                 deg += 90;
-                rotateEL.style.transform = 'rotate(' + deg + 'deg)';
-                rotateEL.style.transitionDuration = '0.5s';
+                rotateLocalEL.style.transform = 'rotate(' + deg + 'deg)';
+                rotateLocalEL.style.transitionDuration = '0.5s';
+                rotateGlobalEL.style.transform = 'rotate(' + deg + 'deg)';
+                rotateGlobalEL.style.transitionDuration = '0.5s';
                 shipHanger.style.transform = 'rotate(' + deg + 'deg)';
                 shipHanger.style.transitionDuration = '0.5s';
                 if (dirSwitch === 0) {
@@ -285,46 +297,57 @@ const userChooseShipCor: {
         const place: HTMLDivElement = document.querySelector('div.im-ship-place');
         ['click', 'touchend'].forEach((ev) => {
             place.addEventListener(ev, () => {
-                const shipEL: any = document.getElementById('im-ship-place-element');
-                const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
-                shipEL.style.position = 'absolute';
-                if (this.pointSwt === 'top') {
-                    this.pointSwt = 'right'
-                } else if (this.pointSwt === 'right') {
-                    this.pointSwt = 'bottom'
-                } else if (this.pointSwt === 'bottom') {
-                    this.pointSwt = 'left';
-                } else if (this.pointSwt === 'left') {
-                    this.pointSwt = 'top';
-                }
-                setTimeout(() => {
-                    let intr = setInterval(() => {
-                        this.mousemove_AEL();
-                        let x: number = this.mouseCorAR[0];
-                        let y: number = this.mouseCorAR[1];
-                        document.getElementById('clientShow').textContent = x + ' | ' + y;
-                        
-                    x = x - 614;
-                    y = y - 420;
-                        shipEL.style.left = x + 'px';
-                        shipEL.style.top = y + 'px';
-                        shipEL.style.transitionDuration = '0.15s';
-                    }, 100);
-                }, 10);
+                if (this.placeShipSwitch === true) {
+                    this.placeShipSwitch = false;
+                    const shipLocalEL: any = document.getElementById('im-ship-place-element');
+                    shipLocalEL.style.display = 'none';
+                    const shipGlobalEL: any = document.getElementById('im-ship-global-element');
+                    shipGlobalEL.style.display = 'flex';   // MEGA WAŻNE!
+                    let shipELDim = shipGlobalEL.getBoundingClientRect();
+                    let shipELDim_wdt = shipELDim.width;
+                    let shipELDim_hgt = shipELDim.height;
+                    document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
+                    const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+                    if (this.pointSwt === 'top' || this.pointSwt === 'bottom') {
+                        this.mouseXcor = this.mouseXcor - (shipELDim_wdt / 2);
+                        this.mouseYcor = this.mouseYcor - (shipELDim_hgt / 2);
+                    } else if (this.pointSwt === 'right' || this.pointSwt === 'left') {
+                        this.mouseXcor = this.mouseXcor - (shipELDim_hgt / 2);
+                        this.mouseYcor = this.mouseYcor - (shipELDim_wdt / 2);
+                    }
+                    shipGlobalEL.style.left = this.mouseXcor + 'px';
+                    shipGlobalEL.style.top = this.mouseYcor + 'px';
+                    shipGlobalEL.style.transitionDuration = '0.0s';
+                } else {}
             }, false);
         });
     },
     mousemove_AEL() {
         window.document.addEventListener('mousemove', (e) => {
-            let x = e.clientX;
-            let y = e.clientY;
-            this.mouseCorAR[0] = x;
-            this.mouseCorAR[1] = y;
+            this.mouseXcor = e.clientX;  //GGLOBAL ZROB
+            this.mouseYcor = e.clientY;
+            const shipEL: any = document.getElementById('im-ship-global-element');
+            let shipELDim = shipEL.getBoundingClientRect();
+            let shipELDim_wdt = shipELDim.width;
+            let shipELDim_hgt = shipELDim.height;
+            document.getElementById('clientShow').textContent = this.mouseXcor + ' | ' + this.mouseYcor;
+            const point: HTMLDivElement = document.querySelector('div.im-ship-place-point');
+            if (this.pointSwt === 'top' || this.pointSwt === 'bottom') {
+                this.mouseXcor = this.mouseXcor - (shipELDim_wdt / 2);
+                this.mouseYcor = this.mouseYcor - (shipELDim_hgt / 2);
+            } else if (this.pointSwt === 'right' || this.pointSwt === 'left') {
+                this.mouseXcor = this.mouseXcor - (shipELDim_hgt / 2);
+                this.mouseYcor = this.mouseYcor - (shipELDim_wdt / 2);
+            }
+            shipEL.style.left = this.mouseXcor + 'px';
+            shipEL.style.top = this.mouseYcor + 'px';
+            shipEL.style.transitionDuration = '0.0s';
         }, false);
     }
 }
 userChooseShipCor.addUserShip_AEL();
 userChooseShipCor.selectShip_AEL();
+userChooseShipCor.mousemove_AEL();
 
 
 
