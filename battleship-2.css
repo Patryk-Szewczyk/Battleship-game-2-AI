@@ -189,13 +189,14 @@ body {
                         .im-ship-S5 {
                             height: calc(5 * 38px);
                         }
-                        .im-ship-place-point {
-                            width: 7px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
-                            height: 7px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
+                        #im-ship-place-point {
+                            width: 1px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
+                            height: 1px;   /*ZMIEJSZ PÓŹNIEJ NA 1px!*/
                             position: absolute;
                             top: 0px;
                             bottom: auto;
                             background-color: red;
+                            opacity: 0.0;
                         }
                 .im-start, .im-submit {
                     width: 100%;
