@@ -449,57 +449,104 @@ var userChooseShipCor = {
                 var usrBrd_Right = userBoardEL_RECT.right;
                 var plcPnt_X = _this.shpPlcPtBCR.x;
                 var plcPnt_Y = _this.shpPlcPtBCR.y;
+                var shipCoordinates = [];
+                //this.onceShipArgs[2] = [];
                 //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
                 if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
-                    var direction = _this.onceShipArgs[1];
+                    //document.getElementById('clientShow').innerHTML = 'You can place ship here!';
                     for (var i = 0; i < fieldsPosition_Obj.fieldsPosARS.length; i++) {
                         if ((plcPnt_X > fieldsPosition_Obj.fieldsPosARS[i][2] && plcPnt_X < fieldsPosition_Obj.fieldsPosARS[i][3]) && (plcPnt_Y > fieldsPosition_Obj.fieldsPosARS[i][0] && plcPnt_Y < fieldsPosition_Obj.fieldsPosARS[i][1])) {
                             var selectArea = i;
-                            for (var j = 0; j < _this.availableFields.length; j++) { // Dostępne pola
-                                if (selectArea === _this.availableFields[j]) { // Czy pozycja początkowa jest dostępna w "availableFields"?
-                                    for (var f = 0; f < _this.fullAreasBoardAR.length; f++) { // Splicowana pełna tablica pól [.splice()] 
-                                        if (selectArea === _this.fullAreasBoardAR[f]) { // Czy pozycja początkowa jest dostępna w splicowanym "fullAreasBoardAR"?
-                                            console.log('yes');
-                                            //return;
-                                            var shipCoordinates = []; // Tworzenie tablicy współrzędnych
-                                            shipCoordinates[0] = selectArea; // Ustalanie pozycji początkowej okrętu
-                                            var incrVal = selectArea; // Inicjowanie zmiennej inkrementalnej
-                                            for (var k = 1; k < _this.onceShipArgs[0]; k++) { // Odpowiednia długość
-                                                if (direction === 'B') { // Odpowiedni kierunek, wybór inkrementowania w zależności od kierunku leżenia statku
-                                                    incrVal += 10;
-                                                }
-                                                else if (direction === 'R') {
-                                                    incrVal += 1;
-                                                }
-                                                for (var l = 0; l < _this.fullAreasBoardAR.length; l++) {
-                                                    if (incrVal == _this.fullAreasBoardAR[l]) {
-                                                        shipCoordinates[k] = incrVal;
-                                                        //document.getElementById('clientShow').innerHTML = 'Setting ship is done!';
+                            var notIsIn_availableFields = 0;
+                            // Sprawdzenie czy punkt początkowy statku jest dostępny w "this.availableFields": (dostepne pola na długośc i kierunek, tablica stała)
+                            for (var j = 0; j < _this.availableFields.length; j++) {
+                                var notIsIn_fullAreasBoardAR = 0;
+                                if (selectArea === _this.availableFields[j]) {
+                                    // Sprawdzenie czy punkt początkowy statku jest dostępny w "this.fullAreasBoardAR": (tablica dostępnych pól, tablica ruchoma)
+                                    for (var k = 0; k < _this.fullAreasBoardAR.length; k++) {
+                                        if (selectArea === _this.fullAreasBoardAR[k]) {
+                                            //alert('To miejsce jest wolne!');
+                                            document.getElementById('clientShow').innerHTML = 'To miejsce jest wolne!';
+                                            //shipCoordinates[0] = selectArea;
+                                            // JESTEŚMY TUTAJ!
+                                            // Tworzenie dalszych współrzędnych statku, zależnych od długości statku i kierunku:
+                                            var shipLength = _this.onceShipArgs[0];
+                                            var shipDirection = _this.onceShipArgs[1];
+                                            //alert ('length: ' + shipLength + ' | direction: ' + shipDirection);
+                                            // Ustawianie wartości zmiennnej inkrementującej dalse współrzędne statku, w zależności od kireunku jego położenia:
+                                            var incrVal = selectArea;
+                                            if (shipDirection === 'R') {
+                                                incrVal = 1;
+                                            }
+                                            else if (shipDirection === 'B') {
+                                                incrVal = 10;
+                                            }
+                                            //alert(incrVal);
+                                            // Tworzenie dalszych współrzędnych:
+                                            shipCoordinates[0] = selectArea; // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
+                                            var nextCoor = selectArea; // Utworzenie zmiennej przechowującej nową aktualną współrzędną (później w FORze)
+                                            for (var m = 1; m < shipLength; m++) {
+                                                nextCoor += incrVal;
+                                                shipCoordinates[m] = nextCoor;
+                                            }
+                                            ;
+                                            //alert(shipCoordinates);
+                                            // Sprawdzenie czy aktualnie utworzone współrzędne istnieją już w tablicy dostępnych pól "this.fullAreasBoardAR":
+                                            // Mogłem to zrobić w petli powyżej, ale po co komplikować sobie życie, skoro można zrobić to osobno, czytelniej i z małym wysiłkiem w tej sytuacji.
+                                            var IS_In_fullAreasBoardAR_nextCoor = 0;
+                                            var NOT_In_fullAreasBoardAR_nextCoor = 0;
+                                            for (var m = 0; m < shipCoordinates.length; m++) { // Na upartego można sprawdzić wszystkie indeksy, ale po co, jak pierwszy jest sprawdzony...
+                                                for (var n = 0; n < _this.fullAreasBoardAR.length; n++) {
+                                                    if (shipCoordinates[m] === _this.fullAreasBoardAR[n]) {
+                                                        IS_In_fullAreasBoardAR_nextCoor += 1;
+                                                        if (IS_In_fullAreasBoardAR_nextCoor === shipCoordinates.length) {
+                                                            alert('Współrzędne istnieją w tablicy! Można ustawić statek!');
+                                                            // Splicowanie tablicy dostępnych pól (ruchomej):
+                                                            for (var n_1 = 0; n_1 < shipCoordinates.length; n_1++) {
+                                                                var elLoc = _this.fullAreasBoardAR.indexOf(shipCoordinates[n_1]);
+                                                                _this.fullAreasBoardAR.splice(elLoc, 1);
+                                                            }
+                                                            ;
+                                                            //alert(shipCoordinates);
+                                                            console.log(_this.fullAreasBoardAR);
+                                                            // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
+                                                            _this.onceShipArgs[2] = shipCoordinates;
+                                                            alert(_this.onceShipArgs[2]);
+                                                        }
+                                                        else { }
                                                     }
-                                                    else if (incrVal != _this.fullAreasBoardAR[l]) {
-                                                        //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
-                                                        //break;
+                                                    else if (shipCoordinates[m] !== _this.fullAreasBoardAR[n]) {
+                                                        NOT_In_fullAreasBoardAR_nextCoor += 1;
+                                                        //console.log(NOT_In_fullAreasBoardAR_nextCoor);
+                                                        var target = ((shipCoordinates.length * _this.fullAreasBoardAR.length) + (shipCoordinates.length)); // - 1 jest już ogarnięte, bo jest zrobione sprawdzanie na pierwszy indeks
+                                                        if (NOT_In_fullAreasBoardAR_nextCoor <= target && NOT_In_fullAreasBoardAR_nextCoor > (target - shipCoordinates.length)) { // COŚ TEN KOMUNIKAT ŹLE SIĘ WYŚWIETLA. NAPRAW TO! ALE POMIMO TEGO WSZYSTKO RACZEJ DZIAŁA DOBRZE.
+                                                            alert('Nie można ustawić statku na innym statku!');
+                                                        }
+                                                        else { }
                                                     }
                                                 }
                                                 ;
                                             }
-                                            ;
-                                            _this.onceShipArgs[2] = shipCoordinates;
-                                            console.log(shipCoordinates);
-                                            document.getElementById('clientShow').innerHTML = _this.onceShipArgs[2][0] + ' | ' + _this.onceShipArgs[2][1] + ' | ' + _this.onceShipArgs[2][2] + ' | ' + _this.onceShipArgs[2][3] + ' | ' + _this.onceShipArgs[2][4];
                                         }
-                                        else {
-                                            //console.log('Ta przestrzeń jest zajęta!');
-                                            //return;
+                                        else if (selectArea === _this.fullAreasBoardAR[k]) {
+                                            notIsIn_fullAreasBoardAR += 1;
+                                            if (notIsIn_fullAreasBoardAR > _this.fullAreasBoardAR.length - 1) {
+                                                //alert('Miejsce to jest zajęte przez inny statek!');
+                                                document.getElementById('clientShow').innerHTML = 'Miejsce to jest zajęte przez inny statek!';
+                                            }
+                                            else { }
                                         }
                                     }
-                                    ;
                                 }
                                 else if (selectArea !== _this.availableFields[j]) {
-                                    //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
-                                    //return;
+                                    notIsIn_availableFields += 1;
+                                    // Jeżeli w każdym z indeksów tablicy "aktualnie dostępnych pól" nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku
+                                    if (notIsIn_availableFields > _this.availableFields.length - 1) {
+                                        //alert('Statek nie może znajdować się poza planszą!');
+                                        document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
+                                    }
+                                    else { }
                                 }
-                                ;
                             }
                             ;
                         }
