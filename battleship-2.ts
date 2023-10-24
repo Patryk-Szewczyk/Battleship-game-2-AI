@@ -215,8 +215,8 @@ const fieldsPosition_Obj: {
             areasCorAR[i][3] = rectOBJ.right;
             this.fieldsPosARS[i] = areasCorAR[i];
         };
-        console.log(areasCorAR);
-        console.log(this.fieldsPosARS);
+        //console.log(areasCorAR);
+        //console.log(this.fieldsPosARS);
     }
 };
 fieldsPosition_Obj.getFieldsPos();
@@ -462,39 +462,44 @@ const userChooseShipCor: {
                 let plcPnt_X = this.shpPlcPtBCR.x;
                 let plcPnt_Y = this.shpPlcPtBCR.y;
                 //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
-                let shpLocDis: string = '';
-                let shpGlbDis: string = '';
                 if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
-                    //document.getElementById('clientShow').innerHTML = 'Place point is on board!';
-                    //alert(fieldsPosition_Obj.fieldsPosARS.length);
                     let direction: string = this.onceShipArgs[1];
                     for (let i: number = 0; i < fieldsPosition_Obj.fieldsPosARS.length; i++) {
                         if ((plcPnt_X > fieldsPosition_Obj.fieldsPosARS[i][2] && plcPnt_X < fieldsPosition_Obj.fieldsPosARS[i][3]) && (plcPnt_Y > fieldsPosition_Obj.fieldsPosARS[i][0] && plcPnt_Y < fieldsPosition_Obj.fieldsPosARS[i][1])) {
                             let selectArea = i;
-                            for (let j: number = 0; j < this.availableFields.length; j++) {
-                                if (selectArea === this.availableFields[j]) {
-                                    let shipCoordinates: number[] = [];
-                                    shipCoordinates[0] = selectArea;
-                                    let incrVal = selectArea;
-                                    for (let k: number = 1; k < this.onceShipArgs[0]; k++) {   // Odpowiednia długość
-                                        if (direction === 'B') {   // Odpowiedni kierunek
-                                            incrVal += 10;
-                                        } else if (direction === 'R') {
-                                            incrVal += 1;
+                            for (let j: number = 0; j < this.availableFields.length; j++) {   // Dostępne pola
+                                if (selectArea === this.availableFields[j]) {   // Czy pozycja początkowa jest dostępna w "availableFields"?
+                                    for (let f: number = 0; f < this.fullAreasBoardAR.length; f++) {   // Splicowana pełna tablica pól [.splice()] 
+                                        if (selectArea === this.fullAreasBoardAR[f]) {   // Czy pozycja początkowa jest dostępna w splicowanym "fullAreasBoardAR"?
+                                            console.log('yes');
+                                            //return;
+                                            let shipCoordinates: number[] = [];   // Tworzenie tablicy współrzędnych
+                                            shipCoordinates[0] = selectArea;   // Ustalanie pozycji początkowej okrętu
+                                            let incrVal = selectArea;   // Inicjowanie zmiennej inkrementalnej
+                                            for (let k: number = 1; k < this.onceShipArgs[0]; k++) {   // Odpowiednia długość
+                                                if (direction === 'B') {   // Odpowiedni kierunek, wybór inkrementowania w zależności od kierunku leżenia statku
+                                                    incrVal += 10;
+                                                } else if (direction === 'R') {
+                                                    incrVal += 1;
+                                                }
+                                                for (let l: number = 0; l < this.fullAreasBoardAR.length; l++) {
+                                                    if (incrVal == this.fullAreasBoardAR[l]) {
+                                                        shipCoordinates[k] = incrVal;
+                                                        //document.getElementById('clientShow').innerHTML = 'Setting ship is done!';
+                                                    } else if (incrVal != this.fullAreasBoardAR[l]) {
+                                                        //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
+                                                        //break;
+                                                    }
+                                                };
+                                            };
+                                            this.onceShipArgs[2] = shipCoordinates;
+                                            console.log(shipCoordinates);
+                                            document.getElementById('clientShow').innerHTML = this.onceShipArgs[2][0] + ' | ' + this.onceShipArgs[2][1] + ' | ' + this.onceShipArgs[2][2] + ' | ' + this.onceShipArgs[2][3] + ' | ' + this.onceShipArgs[2][4];
+                                        } else {
+                                            //console.log('Ta przestrzeń jest zajęta!');
+                                            //return;
                                         }
-                                        for (let l: number = 0; l < this.fullAreasBoardAR.length; l++) {
-                                            if (incrVal == this.fullAreasBoardAR[l]) {
-                                                shipCoordinates[k] = incrVal;
-                                                //document.getElementById('clientShow').innerHTML = 'Setting ship is done!';
-                                            } else if (incrVal != this.fullAreasBoardAR[l]) {
-                                                //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
-                                                //break;
-                                            }
-                                        };
                                     };
-                                    this.onceShipArgs[2] = shipCoordinates;
-                                    console.log(shipCoordinates);
-                                    document.getElementById('clientShow').innerHTML = this.onceShipArgs[2][0] + ' | ' + this.onceShipArgs[2][1] + ' | ' + this.onceShipArgs[2][2] + ' | ' + this.onceShipArgs[2][3] + ' | ' + this.onceShipArgs[2][4];
                                 } else if (selectArea !== this.availableFields[j]) {
                                     //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
                                     //return;
@@ -502,20 +507,8 @@ const userChooseShipCor: {
                             };
                         } else {}
                     };
-                    //console.log(this.onceShipArgs[2]);
-                    
-                    
-                    
-                    //for (let i: number = 0; i < this.availableFields; i++) {
-
-                        //if (this.) {
-                        //    //
-                        //} else {
-                        //    document.getElementById('clientShow').innerHTML = 'You can\'t set ship there!!';
-                        //}
-                    //}
                 } else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && this.placeShipSwitch === false) {
-                    //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
+                    document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
                 }
             }, false);
         });
