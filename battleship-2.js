@@ -212,6 +212,7 @@ var fieldsPosition_Obj = {
 fieldsPosition_Obj.getFieldsPos();
 // Użytkownik - akcje:
 var userChooseShipCor = {
+    fullAreasBoardAR: [],
     userShipsAR: [],
     onceShipArgs: [3, 'B'],
     submitBut: document.querySelector('div.im-submit'),
@@ -225,6 +226,11 @@ var userChooseShipCor = {
     mouseYcor: 0,
     shpPlcPtBCR: [],
     availableFields: [],
+    fillFullAreasBoardAR: function () {
+        for (var i = 0; i < 100; i++) {
+            this.fullAreasBoardAR[i] = i;
+        }
+    },
     addUserShip_AEL: function (arg_1) {
         var _this = this;
         ['click', 'touchend'].forEach(function (ev) {
@@ -295,6 +301,7 @@ var userChooseShipCor = {
                 }
                 _this.onceShipArgs[1] = dir;
                 _this.createAvailableFields();
+                console.log(_this.availableFields);
                 console.log(_this.onceShipArgs);
                 // Ustawianie punktora:
                 var point = document.getElementById('im-ship-place-point');
@@ -427,7 +434,7 @@ var userChooseShipCor = {
             _this.shpPlcPtBCR = shipPlacePoint.getBoundingClientRect();
             var shpPlcPt_X = _this.shpPlcPtBCR.x;
             var shpPlcPt_y = _this.shpPlcPtBCR.y;
-            document.getElementById('clientShow').innerHTML = ' - Pointer: x: ' + shpPlcPt_X + ' | y: ' + shpPlcPt_y;
+            //document.getElementById('clientShow').innerHTML = 'Pointer: x: ' + shpPlcPt_X + ' | y: ' + shpPlcPt_y;
         }, false);
     },
     setShip_AEL: function () {
@@ -443,16 +450,72 @@ var userChooseShipCor = {
                 var plcPnt_X = _this.shpPlcPtBCR.x;
                 var plcPnt_Y = _this.shpPlcPtBCR.y;
                 //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
+                var shpLocDis = '';
+                var shpGlbDis = '';
                 if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
-                    alert('Statek znajduje się na planszy!');
+                    //document.getElementById('clientShow').innerHTML = 'Place point is on board!';
+                    //alert(fieldsPosition_Obj.fieldsPosARS.length);
+                    var direction = _this.onceShipArgs[1];
+                    for (var i = 0; i < fieldsPosition_Obj.fieldsPosARS.length; i++) {
+                        if ((plcPnt_X > fieldsPosition_Obj.fieldsPosARS[i][2] && plcPnt_X < fieldsPosition_Obj.fieldsPosARS[i][3]) && (plcPnt_Y > fieldsPosition_Obj.fieldsPosARS[i][0] && plcPnt_Y < fieldsPosition_Obj.fieldsPosARS[i][1])) {
+                            var selectArea = i;
+                            for (var j = 0; j < _this.availableFields.length; j++) {
+                                if (selectArea === _this.availableFields[j]) {
+                                    var shipCoordinates = [];
+                                    shipCoordinates[0] = selectArea;
+                                    var incrVal = selectArea;
+                                    for (var k = 1; k < _this.onceShipArgs[0]; k++) { // Odpowiednia długość
+                                        if (direction === 'B') { // Odpowiedni kierunek
+                                            incrVal += 10;
+                                        }
+                                        else if (direction === 'R') {
+                                            incrVal += 1;
+                                        }
+                                        for (var l = 0; l < _this.fullAreasBoardAR.length; l++) {
+                                            if (incrVal == _this.fullAreasBoardAR[l]) {
+                                                shipCoordinates[k] = incrVal;
+                                                //document.getElementById('clientShow').innerHTML = 'Setting ship is done!';
+                                            }
+                                            else if (incrVal != _this.fullAreasBoardAR[l]) {
+                                                //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
+                                                //break;
+                                            }
+                                        }
+                                        ;
+                                    }
+                                    ;
+                                    _this.onceShipArgs[2] = shipCoordinates;
+                                    console.log(shipCoordinates);
+                                    document.getElementById('clientShow').innerHTML = _this.onceShipArgs[2][0] + ' | ' + _this.onceShipArgs[2][1] + ' | ' + _this.onceShipArgs[2][2] + ' | ' + _this.onceShipArgs[2][3] + ' | ' + _this.onceShipArgs[2][4];
+                                }
+                                else if (selectArea !== _this.availableFields[j]) {
+                                    //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
+                                    //return;
+                                }
+                                ;
+                            }
+                            ;
+                        }
+                        else { }
+                    }
+                    ;
+                    //console.log(this.onceShipArgs[2]);
+                    //for (let i: number = 0; i < this.availableFields; i++) {
+                    //if (this.) {
+                    //    //
+                    //} else {
+                    //    document.getElementById('clientShow').innerHTML = 'You can\'t set ship there!!';
+                    //}
+                    //}
                 }
                 else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && _this.placeShipSwitch === false) {
-                    alert('Statek jest poza planszą!');
+                    //document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
                 }
             }, false);
         });
     }
 };
+userChooseShipCor.fillFullAreasBoardAR();
 userChooseShipCor.addUserShip_AEL();
 userChooseShipCor.selectShip_AEL();
 userChooseShipCor.mousemove_AEL();
