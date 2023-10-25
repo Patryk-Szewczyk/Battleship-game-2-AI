@@ -409,7 +409,7 @@ var userChooseShipCor = {
     mousemove_AEL: function () {
         var _this = this;
         window.document.addEventListener('mousemove', function (e) {
-            console.log(_this.placeShipSwitch);
+            //console.log(this.placeShipSwitch);     //   P L A C E   S W I T C H   !
             // Pseudo-ruszanie statkiem:
             _this.mouseXcor = e.clientX;
             _this.mouseYcor = e.clientY;
@@ -466,11 +466,11 @@ var userChooseShipCor = {
                                     for (var k = 0; k < _this.fullAreasBoardAR.length; k++) {
                                         if (selectArea === _this.fullAreasBoardAR[k]) {
                                             //alert('To miejsce jest wolne!');
-                                            document.getElementById('clientShow').innerHTML = 'To miejsce jest wolne!';
+                                            //document.getElementById('clientShow').innerHTML = 'To miejsce jest wolne!';
                                             //shipCoordinates[0] = selectArea;
                                             // JESTEŚMY TUTAJ!
                                             // Tworzenie dalszych współrzędnych statku, zależnych od długości statku i kierunku:
-                                            var shipLength = _this.onceShipArgs[0];
+                                            var shipLength = Number(_this.onceShipArgs[0]);
                                             var shipDirection = _this.onceShipArgs[1];
                                             //alert ('length: ' + shipLength + ' | direction: ' + shipDirection);
                                             // Ustawianie wartości zmiennnej inkrementującej dalse współrzędne statku, w zależności od kireunku jego położenia:
@@ -500,7 +500,7 @@ var userChooseShipCor = {
                                                     if (shipCoordinates[m] === _this.fullAreasBoardAR[n]) {
                                                         IS_In_fullAreasBoardAR_nextCoor += 1;
                                                         if (IS_In_fullAreasBoardAR_nextCoor === shipCoordinates.length) {
-                                                            alert('Współrzędne istnieją w tablicy! Można ustawić statek!');
+                                                            //alert('Współrzędne istnieją w tablicy! Można ustawić statek!');
                                                             // Splicowanie tablicy dostępnych pól (ruchomej):
                                                             for (var n_1 = 0; n_1 < shipCoordinates.length; n_1++) {
                                                                 var elLoc = _this.fullAreasBoardAR.indexOf(shipCoordinates[n_1]);
@@ -511,37 +511,41 @@ var userChooseShipCor = {
                                                             console.log(_this.fullAreasBoardAR);
                                                             // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
                                                             _this.onceShipArgs[2] = shipCoordinates;
-                                                            alert(_this.onceShipArgs[2]);
+                                                            console.log(_this.onceShipArgs[2]);
+                                                            document.getElementById('clientShow').innerHTML = '| ';
+                                                            for (var n_2 = 0; n_2 < shipCoordinates.length; n_2++) {
+                                                                document.getElementById('clientShow').innerHTML += _this.onceShipArgs[2][n_2] + ' | ';
+                                                            }
+                                                            ;
                                                         }
                                                         else { }
                                                     }
-                                                    else if (shipCoordinates[m] !== _this.fullAreasBoardAR[n]) {
+                                                    else if (shipCoordinates[m] !== _this.fullAreasBoardAR[n]) { // Jeżeli tej "dalszej (osobno)" współrzędnej nie ma na planszy dostępnych współrzędnych
                                                         NOT_In_fullAreasBoardAR_nextCoor += 1;
-                                                        //console.log(NOT_In_fullAreasBoardAR_nextCoor);
-                                                        var target = ((shipCoordinates.length * _this.fullAreasBoardAR.length) + (shipCoordinates.length)); // - 1 jest już ogarnięte, bo jest zrobione sprawdzanie na pierwszy indeks
-                                                        if (NOT_In_fullAreasBoardAR_nextCoor <= target && NOT_In_fullAreasBoardAR_nextCoor > (target - shipCoordinates.length)) { // COŚ TEN KOMUNIKAT ŹLE SIĘ WYŚWIETLA. NAPRAW TO! ALE POMIMO TEGO WSZYSTKO RACZEJ DZIAŁA DOBRZE.
-                                                            alert('Nie można ustawić statku na innym statku!');
-                                                        }
-                                                        else { }
                                                     }
                                                 }
                                                 ;
                                             }
+                                            ;
                                         }
-                                        else if (selectArea === _this.fullAreasBoardAR[k]) {
+                                        else if (selectArea !== _this.fullAreasBoardAR[k]) {
                                             notIsIn_fullAreasBoardAR += 1;
-                                            if (notIsIn_fullAreasBoardAR > _this.fullAreasBoardAR.length - 1) {
+                                            // Sytuacja: Statek znajduje się na planszy, ALE nakłada się na inny statek.
+                                            // Jeżeli w każdym z indeksów tablicy "aktualnie dostępnych pól" (ruchomej) nie ma dostępnych pól, równych wszystkim współrzędnym statku => nie twórz statku:
+                                            if (notIsIn_fullAreasBoardAR === _this.fullAreasBoardAR.length) {
                                                 //alert('Miejsce to jest zajęte przez inny statek!');
-                                                document.getElementById('clientShow').innerHTML = 'Miejsce to jest zajęte przez inny statek!';
+                                                document.getElementById('clientShow').innerHTML = 'Statki nie mogą nakładać się na siebie!';
                                             }
                                             else { }
                                         }
                                     }
+                                    ;
                                 }
                                 else if (selectArea !== _this.availableFields[j]) {
                                     notIsIn_availableFields += 1;
-                                    // Jeżeli w każdym z indeksów tablicy "aktualnie dostępnych pól" nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku
-                                    if (notIsIn_availableFields > _this.availableFields.length - 1) {
+                                    // Sytuacja: Statek znajduje się poza planszą.
+                                    // Jeżeli w każdym z indeksów tablicy "ograniczonych pól" (stałej) nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku:
+                                    if (notIsIn_availableFields === _this.availableFields.length) {
                                         //alert('Statek nie może znajdować się poza planszą!');
                                         document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
                                     }
@@ -555,7 +559,7 @@ var userChooseShipCor = {
                     ;
                 }
                 else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && _this.placeShipSwitch === false) {
-                    document.getElementById('clientShow').innerHTML = 'Is not possible to set ship here!';
+                    document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
                 }
             }, false);
         });
