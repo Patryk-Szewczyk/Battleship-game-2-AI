@@ -270,25 +270,24 @@ const userChooseShipCor: {
         }
     },
     addUserShip_AEL():void {
-        //['click', 'touchend'].forEach((ev) => {
-            //this.submitBut.addEventListener(ev, () => {
-                if (this.createLimit < 7) {
-                    this.createLimit += 1;
-                    let num: number = this.createLimit;
-                    let lgt: number = this.onceShipArgs[0];   //this.shipLgt.value
-                    let dir: string = this.onceShipArgs[1];   //this.shipDir.value
-                    let cor: number[] = this.onceShipArgs[2];   //this.shipStartCor.value
-                    let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor);
-                    this.userShipsAR.push(ship);
-                    console.log(this.createLimit);
-                } else {}
-                if (this.createLimit === 7) {
-                    this.isDisabled = true;   // Wyłącz AEL ustawiania statku
-                    console.log(this.userShipsAR);
-                    document.getElementById('clientShow').innerHTML = 'Wszystkie statki zostały umieszczone! Możesz rozpocząć grę';
-                } else {}
-            //}, false);
-        //});
+        if (this.createLimit < 7) {
+            this.createLimit += 1;
+            let num: number = this.createLimit;
+            let lgt: number = this.onceShipArgs[0];
+            let dir: string = this.onceShipArgs[1];
+            let cor: number[] = this.onceShipArgs[2];
+            let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor);
+            this.userShipsAR.push(ship);
+        } else {}
+        if (this.createLimit === 7) {
+            this.isDisabled = true;   // WAŻNE: Wyłącz AEL ustawiania statku
+            const startBut: HTMLDivElement = document.querySelector('div.button-start-game');
+            const info: HTMLElement = document.getElementById('clientShow');
+            startBut.style.display = 'flex';
+            console.log(this.userShipsAR);
+            info.textContent = 'Wszystkie statki zostały umieszczone! \r\n';
+            info.textContent += 'Możesz rozpocząć grę! \r\n';
+        } else {}
     },
     selectShip_AEL():void {
         const selectEL: HTMLSelectElement = document.querySelector('select.im-select-ship');
@@ -302,7 +301,7 @@ const userChooseShipCor: {
             shipGlobalEL.removeAttribute('class');
             shipPlaceEL.setAttribute('class', 'im-ship-S' + lgt);
             shipGlobalEL.setAttribute('class', 'im-ship-S' + lgt);
-            console.log(shipPlaceEL);
+            //console.log(shipPlaceEL);
             //console.log(this.onceShipArgs);
             this.createAvailableFields();
         }, false);
@@ -335,8 +334,8 @@ const userChooseShipCor: {
                 }
                 this.onceShipArgs[1] = dir;
                 this.createAvailableFields();
-                console.log(this.availableFields);
-                console.log(this.onceShipArgs);
+                //console.log(this.availableFields);
+                //console.log(this.onceShipArgs);
                 // Ustawianie punktora:
                 const point: any = document.getElementById('im-ship-place-point');
                 if (this.pointSwt === 'top') {
@@ -395,7 +394,7 @@ const userChooseShipCor: {
             }
         } else {}
         this.availableFields = newArr;
-        console.log(this.availableFields);    /*ARRAY_FIELDS CONSOLLOG*/
+        //console.log(this.availableFields);    /*ARRAY_FIELDS CONSOLLOG*/
     },
     moveShip_AEL(): void {
         const place: HTMLDivElement = document.querySelector('div.im-ship-place');
@@ -466,11 +465,12 @@ const userChooseShipCor: {
                 let plcPnt_X = this.shpPlcPtBCR.x;
                 let plcPnt_Y = this.shpPlcPtBCR.y;
                 let shipCoordinates: number[] = [];
+                const setShipInfo: HTMLElement = document.getElementById('clientShow');
                 //this.onceShipArgs[2] = [];
                 //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
                 if (this.isDisabled === false) {
                     if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
-                        //document.getElementById('clientShow').innerHTML = 'You can place ship here!';
+                        //setShipInfo.textContent = 'You can place ship here!';
                         for (let i: number = 0; i < fieldsPosition_Obj.fieldsPosARS.length; i++) {
                             if ((plcPnt_X > fieldsPosition_Obj.fieldsPosARS[i][2] && plcPnt_X < fieldsPosition_Obj.fieldsPosARS[i][3]) && (plcPnt_Y > fieldsPosition_Obj.fieldsPosARS[i][0] && plcPnt_Y < fieldsPosition_Obj.fieldsPosARS[i][1])) {
                                 let selectArea = i;
@@ -487,12 +487,12 @@ const userChooseShipCor: {
                                             if (selectArea === this.fullAreasBoardAR[k]) {
                                                 shipCoordinates[0] = selectArea   // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
                                                 //alert('To miejsce jest wolne!');
-                                                //document.getElementById('clientShow').innerHTML = 'To miejsce jest wolne!';
+                                                //setShipInfo.textContent = 'To miejsce jest wolne!';
                                             } else if (selectArea !== this.fullAreasBoardAR[k]) {
                                                 notIsIn_fullAreasBoardAR += 1;
                                                 if (notIsIn_fullAreasBoardAR === this.fullAreasBoardAR.length) {
                                                     //alert('Miejsce to jest zajęte przez inny statek!');
-                                                    document.getElementById('clientShow').innerHTML = 'Statki nie mogą nakładać się na siebie!';
+                                                    setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
                                                     // MEGA WAŻNA ULTRA RZECZ!!!
                                                     return;   // Zakończ wykonywanie funkcji, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
                                                 } else {}
@@ -531,15 +531,15 @@ const userChooseShipCor: {
                                                             this.fullAreasBoardAR.splice(elLoc, 1);
                                                         };
                                                         //alert(shipCoordinates);
-                                                        console.log(this.fullAreasBoardAR);
+                                                        //console.log(this.fullAreasBoardAR);
                                                         // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
                                                         this.onceShipArgs[2] = shipCoordinates;
-                                                        console.log(this.onceShipArgs[2]);
-                                                        document.getElementById('clientShow').innerHTML = 'Statek został ustawiony!';
-                                                        //document.getElementById('clientShow').innerHTML = '| ';
+                                                        //console.log(this.onceShipArgs[2]);
+                                                        setShipInfo.textContent = 'Statek został ustawiony!';
+                                                        //setShipInfo.textContent = '| ';
                                                         this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
                                                         for (let n: number = 0; n < shipCoordinates.length; n++) {
-                                                            //document.getElementById('clientShow').innerHTML += this.onceShipArgs[2][n] + ' | ';
+                                                            //setShipInfo.textContent += this.onceShipArgs[2][n] + ' | ';
                                                         };
                                                     } else {}
                                                 } else if (shipCoordinates[m] !== this.fullAreasBoardAR[n]) {
@@ -554,7 +554,7 @@ const userChooseShipCor: {
                                                 if (OVERLOOP_fullAreasBoardAR_nextCoor === target) {
                                                     //  alert(IS_In_fullAreasBoardAR_nextCoor === shipLength);
                                                     if (IS_In_fullAreasBoardAR_nextCoor < shipLength) {
-                                                        document.getElementById('clientShow').innerHTML = 'Statki nie mogą nakładać się na siebie!';
+                                                        setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
                                                     } else {}
                                                 } else {}
                                             };
@@ -566,17 +566,18 @@ const userChooseShipCor: {
                                         // Jeżeli w każdym z indeksów tablicy "ograniczonych pól" (stałej) nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku:
                                         if (notIsIn_availableFields === this.availableFields.length) {
                                             //alert('Statek nie może znajdować się poza planszą!');
-                                            document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
+                                            setShipInfo.textContent = 'Statek nie może znajdować się poza planszą!';
                                         } else {}
                                     }
                                 };
                             } else {}
                         };
                     } else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && this.placeShipSwitch === false) {
-                        document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
+                        setShipInfo.textContent = 'Statek nie może znajdować się poza planszą!';
                     }
                 } else if (this.isDisabled === true) {
-                    document.getElementById('clientShow').textContent = 'Nie możesz ustawić statku, gdyż nie posiadasz żadnego!';
+                    setShipInfo.textContent = 'Nie możesz ustawić statku,\r\n';
+                    setShipInfo.textContent += 'gdyż nie posiadasz żadnego!';
                 }
             }, false);
         });
@@ -622,7 +623,7 @@ const switch_Obj: {
     moveBoard: Function
 } = {
     isStart: 'no',
-    but: document.querySelector('div.click'),
+    but: document.querySelector('div.button-start-game'),
     startGame(): void {
         ['click', 'touchend'].forEach((ev) => {
             this.but.addEventListener(ev, () => {
