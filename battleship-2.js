@@ -233,27 +233,26 @@ var userChooseShipCor = {
         }
     },
     addUserShip_AEL: function () {
-        //['click', 'touchend'].forEach((ev) => {
-        //this.submitBut.addEventListener(ev, () => {
         if (this.createLimit < 7) {
             this.createLimit += 1;
             var num = this.createLimit;
-            var lgt = this.onceShipArgs[0]; //this.shipLgt.value
-            var dir = this.onceShipArgs[1]; //this.shipDir.value
-            var cor = this.onceShipArgs[2]; //this.shipStartCor.value
+            var lgt = this.onceShipArgs[0];
+            var dir = this.onceShipArgs[1];
+            var cor = this.onceShipArgs[2];
             var ship = new UserShipCor(num, lgt, dir, cor);
             this.userShipsAR.push(ship);
-            console.log(this.createLimit);
         }
         else { }
         if (this.createLimit === 7) {
-            this.isDisabled = true; // Wyłącz AEL ustawiania statku
+            this.isDisabled = true; // WAŻNE: Wyłącz AEL ustawiania statku
+            var startBut = document.querySelector('div.button-start-game');
+            var info = document.getElementById('clientShow');
+            startBut.style.display = 'flex';
             console.log(this.userShipsAR);
-            document.getElementById('clientShow').innerHTML = 'Wszystkie statki zostały umieszczone! Możesz rozpocząć grę';
+            info.textContent = 'Wszystkie statki zostały umieszczone! \r\n';
+            info.textContent += 'Możesz rozpocząć grę! \r\n';
         }
         else { }
-        //}, false);
-        //});
     },
     selectShip_AEL: function () {
         var _this = this;
@@ -268,7 +267,7 @@ var userChooseShipCor = {
             shipGlobalEL.removeAttribute('class');
             shipPlaceEL.setAttribute('class', 'im-ship-S' + lgt);
             shipGlobalEL.setAttribute('class', 'im-ship-S' + lgt);
-            console.log(shipPlaceEL);
+            //console.log(shipPlaceEL);
             //console.log(this.onceShipArgs);
             _this.createAvailableFields();
         }, false);
@@ -303,8 +302,8 @@ var userChooseShipCor = {
                 }
                 _this.onceShipArgs[1] = dir;
                 _this.createAvailableFields();
-                console.log(_this.availableFields);
-                console.log(_this.onceShipArgs);
+                //console.log(this.availableFields);
+                //console.log(this.onceShipArgs);
                 // Ustawianie punktora:
                 var point = document.getElementById('im-ship-place-point');
                 if (_this.pointSwt === 'top') {
@@ -375,7 +374,7 @@ var userChooseShipCor = {
         }
         else { }
         this.availableFields = newArr;
-        console.log(this.availableFields); /*ARRAY_FIELDS CONSOLLOG*/
+        //console.log(this.availableFields);    /*ARRAY_FIELDS CONSOLLOG*/
     },
     moveShip_AEL: function () {
         var _this = this;
@@ -452,11 +451,12 @@ var userChooseShipCor = {
                 var plcPnt_X = _this.shpPlcPtBCR.x;
                 var plcPnt_Y = _this.shpPlcPtBCR.y;
                 var shipCoordinates = [];
+                var setShipInfo = document.getElementById('clientShow');
                 //this.onceShipArgs[2] = [];
                 //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
                 if (_this.isDisabled === false) {
                     if ((plcPnt_X > usrBrd_Left && plcPnt_X < usrBrd_Right) && (plcPnt_Y > usrBrd_Top && plcPnt_Y < usrBrd_Bottom)) {
-                        //document.getElementById('clientShow').innerHTML = 'You can place ship here!';
+                        //setShipInfo.textContent = 'You can place ship here!';
                         for (var i = 0; i < fieldsPosition_Obj.fieldsPosARS.length; i++) {
                             if ((plcPnt_X > fieldsPosition_Obj.fieldsPosARS[i][2] && plcPnt_X < fieldsPosition_Obj.fieldsPosARS[i][3]) && (plcPnt_Y > fieldsPosition_Obj.fieldsPosARS[i][0] && plcPnt_Y < fieldsPosition_Obj.fieldsPosARS[i][1])) {
                                 var selectArea = i;
@@ -473,13 +473,13 @@ var userChooseShipCor = {
                                             if (selectArea === _this.fullAreasBoardAR[k]) {
                                                 shipCoordinates[0] = selectArea; // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
                                                 //alert('To miejsce jest wolne!');
-                                                //document.getElementById('clientShow').innerHTML = 'To miejsce jest wolne!';
+                                                //setShipInfo.textContent = 'To miejsce jest wolne!';
                                             }
                                             else if (selectArea !== _this.fullAreasBoardAR[k]) {
                                                 notIsIn_fullAreasBoardAR += 1;
                                                 if (notIsIn_fullAreasBoardAR === _this.fullAreasBoardAR.length) {
                                                     //alert('Miejsce to jest zajęte przez inny statek!');
-                                                    document.getElementById('clientShow').innerHTML = 'Statki nie mogą nakładać się na siebie!';
+                                                    setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
                                                     // MEGA WAŻNA ULTRA RZECZ!!!
                                                     return; // Zakończ wykonywanie funkcji, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
                                                 }
@@ -523,15 +523,15 @@ var userChooseShipCor = {
                                                         }
                                                         ;
                                                         //alert(shipCoordinates);
-                                                        console.log(_this.fullAreasBoardAR);
+                                                        //console.log(this.fullAreasBoardAR);
                                                         // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
                                                         _this.onceShipArgs[2] = shipCoordinates;
-                                                        console.log(_this.onceShipArgs[2]);
-                                                        document.getElementById('clientShow').innerHTML = 'Statek został ustawiony!';
-                                                        //document.getElementById('clientShow').innerHTML = '| ';
+                                                        //console.log(this.onceShipArgs[2]);
+                                                        setShipInfo.textContent = 'Statek został ustawiony!';
+                                                        //setShipInfo.textContent = '| ';
                                                         _this.addUserShip_AEL(); // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
                                                         for (var n_2 = 0; n_2 < shipCoordinates.length; n_2++) {
-                                                            //document.getElementById('clientShow').innerHTML += this.onceShipArgs[2][n] + ' | ';
+                                                            //setShipInfo.textContent += this.onceShipArgs[2][n] + ' | ';
                                                         }
                                                         ;
                                                     }
@@ -551,7 +551,7 @@ var userChooseShipCor = {
                                                 if (OVERLOOP_fullAreasBoardAR_nextCoor === target) {
                                                     //  alert(IS_In_fullAreasBoardAR_nextCoor === shipLength);
                                                     if (IS_In_fullAreasBoardAR_nextCoor < shipLength) {
-                                                        document.getElementById('clientShow').innerHTML = 'Statki nie mogą nakładać się na siebie!';
+                                                        setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
                                                     }
                                                     else { }
                                                 }
@@ -568,7 +568,7 @@ var userChooseShipCor = {
                                         // Jeżeli w każdym z indeksów tablicy "ograniczonych pól" (stałej) nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku:
                                         if (notIsIn_availableFields === _this.availableFields.length) {
                                             //alert('Statek nie może znajdować się poza planszą!');
-                                            document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
+                                            setShipInfo.textContent = 'Statek nie może znajdować się poza planszą!';
                                         }
                                         else { }
                                     }
@@ -580,11 +580,12 @@ var userChooseShipCor = {
                         ;
                     }
                     else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && _this.placeShipSwitch === false) {
-                        document.getElementById('clientShow').innerHTML = 'Statek nie może znajdować się poza planszą!';
+                        setShipInfo.textContent = 'Statek nie może znajdować się poza planszą!';
                     }
                 }
                 else if (_this.isDisabled === true) {
-                    document.getElementById('clientShow').textContent = 'Nie możesz ustawić statku, gdyż nie posiadasz żadnego!';
+                    setShipInfo.textContent = 'Nie możesz ustawić statku,\r\n';
+                    setShipInfo.textContent += 'gdyż nie posiadasz żadnego!';
                 }
             }, false);
         });
@@ -608,7 +609,7 @@ var UserShipCor = /** @class */ (function () {
 ;
 var switch_Obj = {
     isStart: 'no',
-    but: document.querySelector('div.click'),
+    but: document.querySelector('div.button-start-game'),
     startGame: function () {
         var _this = this;
         ['click', 'touchend'].forEach(function (ev) {
