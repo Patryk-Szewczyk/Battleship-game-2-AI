@@ -39,9 +39,12 @@ const boards_Obj: {
     setAreaELS(): void {
        for (let i: number = 0; i < 2; i++) {
              for (let j: number = 0; j < 100; j++) {
-                let areaEL = document.createElement('div');
+                const areaEL = document.createElement('div');
                 areaEL.setAttribute('class', 'area-box');
                 areaEL.setAttribute('id', this.boardType[i] + String(j));
+                const contentTypeEL = document.createElement('div');
+                contentTypeEL.setAttribute('class', 'areaContentType');
+                areaEL.appendChild(contentTypeEL);
                 this.boardELS[i].appendChild(areaEL);
             }
         };
@@ -167,8 +170,8 @@ const dangerousFields_Obj: {
                 return a - b;
             });
         };
-        console.log(this.dir_R);
-        console.log(this.dir_B);
+        //console.log(this.dir_R);   // Tablica niedozwolonych współrzędnych dla kierunku "w prawo"
+        //console.log(this.dir_B);   // Tablica niedozwolonych współrzędnych dla kierunku "w lewo"
     }
 };
 dangerousFields_Obj.setToBtmAR();
@@ -225,19 +228,20 @@ fieldsPosition_Obj.getFieldsPos();
 
 // Użytkownik - akcje:
 const userChooseShipCor: {
+    maxShipAmount: number,
     fullAreasBoardAR: number[],
     fillFullAreasBoardAR: Function,
     userShipsAR: UserShipCor[],
-    onceShipArgs: (string | number)[],
+    onceShipArgs: (string | number | boolean)[],
     addUserShip_AEL: Function,
     submitBut: HTMLInputElement,
-    /*shipLgt: HTMLInputElement,
-    shipDir: HTMLInputElement,*/
-    //shipStartCor: HTMLInputElement,
     createLimit: number,
     selectShip_AEL: Function,
+    currentOptionID: number,
+    delCurSelectOption: Function,
     rotateShip_AEL: Function,
     pointSwt: string,
+    resetShipSetting: Function
     createAvailableFields: Function,
     moveShip_AEL: Function,
     mousemove_AEL: Function,
@@ -249,13 +253,11 @@ const userChooseShipCor: {
     setShip_AEL: Function,
     isDisabled: boolean
 } = {
+    maxShipAmount: 6,
     fullAreasBoardAR: [],
     userShipsAR: [],
     onceShipArgs: [3, 'B'],   // [3, 'B', 42]
     submitBut: document.querySelector('div.im-submit'),
-    /*shipLgt: document.querySelector('input.inpLgt'),
-    shipDir: document.querySelector('input.inpDir'),*/
-    //shipStartCor: document.querySelector('input.inpCor'),
     createLimit: 0,
     pointSwt: 'top',
     placeShipSwitch: true,
@@ -264,22 +266,34 @@ const userChooseShipCor: {
     shpPlcPtBCR: [],
     availableFields: [],
     isDisabled: false,
+    currentOptionID: 0,
     fillFullAreasBoardAR(): void {
         for (let i: number = 0; i < 100; i++) {
             this.fullAreasBoardAR[i] = i;
         }
     },
     addUserShip_AEL():void {
-        if (this.createLimit < 7) {
+        if (this.createLimit < this.maxShipAmount) {
             this.createLimit += 1;
+            // Pobieranie argumentów w celu przekazania ich do klasy:
             let num: number = this.createLimit;
             let lgt: number = this.onceShipArgs[0];
             let dir: string = this.onceShipArgs[1];
-            let cor: number[] = this.onceShipArgs[2];
-            let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor);
+            const cor: number[] = this.onceShipArgs[2];
+            const hits: boolean[] = this.onceShipArgs[3];
+            let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor, hits);
             this.userShipsAR.push(ship);
+            // Utwórz graficznie statek na planszy:
+            const userAreaAR: NodeListOf<HTMLDivElement> = document.querySelectorAll('div.areaContentType');
+            userAreaAR[this.onceShipArgs[2][0]].removeAttribute('class');
+            userAreaAR[this.onceShipArgs[2][0]].setAttribute('class', 'areaContentType act-ship-Dir' + dir + '-S' + lgt);
+            // Kasowanie aktualnego "option" w "select":
+            this.delCurSelectOption();
+            // Pokazanie przycisku resetującego ustawianie statków:
+            const butReset: HTMLDivElement = document.querySelector('div.im-reset');
+            butReset.style.display = 'flex';
         } else {}
-        if (this.createLimit === 7) {
+        if (this.createLimit === this.maxShipAmount) {
             this.isDisabled = true;   // WAŻNE: Wyłącz AEL ustawiania statku
             const startBut: HTMLDivElement = document.querySelector('div.button-start-game');
             const info: HTMLElement = document.getElementById('clientShow');
@@ -290,11 +304,17 @@ const userChooseShipCor: {
         } else {}
     },
     selectShip_AEL():void {
-        const selectEL: HTMLSelectElement = document.querySelector('select.im-select-ship');
+        const selectEL: any = document.querySelector('select.im-select-ship');
         selectEL.addEventListener('change', (e) => {
             const el: any = e.currentTarget;
-            let lgt: number = el.value;
+            let val: string = el.value;
+            // Pobranie pseudoID wybranego elementu "option":
+            let id: number = Number(val.slice(1, 2));
+            this.currentOptionID = id;
+            // Pobranie długości statku:
+            let lgt: number = Number(val.slice(4, 5));
             this.onceShipArgs[0] = lgt;
+            // Graficzne wybranie statku:
             let shipPlaceEL: any = document.getElementById('im-ship-place-element');
             let shipGlobalEL: any = document.getElementById('im-ship-global-element');
             shipPlaceEL.removeAttribute('class');
@@ -306,6 +326,40 @@ const userChooseShipCor: {
             this.createAvailableFields();
         }, false);
         this.rotateShip_AEL();
+    },
+    delCurSelectOption(): void {
+        // Usuwanie elementu na liście "select":
+        const currentOption: number = this.currentOptionID;   // - 1 (- bo rozpoczynamy od 1, a nie od 0, bo iterujemy od 0 kolekcję elementów)
+        const selectChildren: NodeListOf<HTMLOptionElement> = document.querySelectorAll('option.opt');
+        const selectEL: any = document.querySelector('select.im-select-ship');
+        let currSelChildID_AR: number[] = [];
+        for (let i: number = 0; i < selectChildren.length; i++) {
+            let val: string = selectEL.options[i].value;
+            let id: number = Number(val.slice(1, 2));
+            currSelChildID_AR[i] = id;
+        };
+        for (let i: number = 0; i < selectChildren.length; i++) {
+            if (currentOption == currSelChildID_AR[i]) {
+                selectChildren[i].remove();
+            } else {}
+        };
+        //alert(currentOption);
+        // Ustawienie wskaźnika "select" na pierwszy "option":
+        selectEL.options[0].setAttribute('selected', 'selected');
+        // Zmiana pozycji i widoczności elementu "pseudo statku" (do ustawienia):
+        if (this.placeShipSwitch === false) {
+            this.placeShipSwitch = true;
+            const shipLocalEL: any = document.getElementById('im-ship-place-element');
+            shipLocalEL.style.display = 'flex';
+            const shipGlobalEL: any = document.getElementById('im-ship-global-element');
+            shipGlobalEL.style.display = 'none';   // MEGA WAŻNE!
+            shipGlobalEL.style.left = 0 + 'px';
+            shipGlobalEL.style.top = 0 + 'px';
+            shipGlobalEL.style.transitionDuration = '0.0s';
+            // Graficzne kasowanie statku:
+            shipLocalEL.removeAttribute('class');
+            shipGlobalEL.removeAttribute('class');
+        } else {}
     },
     rotateShip_AEL(): void {
         const rotateLocalEL: HTMLDivElement = document.querySelector('div.im-rotate-ship');
@@ -358,6 +412,76 @@ const userChooseShipCor: {
             }, false);
         });
         this.moveShip_AEL();
+    },
+    resetShipSetting(): void {
+        const butReset: HTMLDivElement = document.querySelector('div.im-reset');
+        ['click', 'touchend'].forEach((ev) => {
+            butReset.addEventListener(ev, () => {
+                // Kasowanie i none-display'owanie tego co trzeba:
+                butReset.style.display = 'none';
+                const butStart: HTMLDivElement = document.querySelector('div.button-start-game');
+                butStart.style.display = 'none';
+                for (let i: number = 0; i < this.onceShipArgs.length; i++) {
+                    this.onceShipArgs.pop();
+                };
+                for (let i: number = 0; i < this.maxShipAmount; i++) {
+                    this.userShipsAR.pop();
+                };
+                const selectChildren: NodeListOf<HTMLOptionElement> = document.querySelectorAll('option.opt');
+                const selectEL: any = document.querySelector('select.im-select-ship');
+                console.log(selectChildren);
+                for (let i: number = 0; i < selectChildren.length; i++) {   // UWAGA! MEGA WAŻNE! Zawsze używaj w tej sytuacji ".length" kolekcji elemnetów "NodeListOf<HTMLOptionElement>"
+                    selectChildren[i].remove();
+                    console.log(i);
+                };
+                console.log(selectEL);
+                console.log(selectChildren);
+                // Graficzne kasowanie statku na panelu ustawiania:
+                const shipLocalEL: any = document.getElementById('im-ship-place-element');
+                shipLocalEL.removeAttribute('class');
+                // Graficzne kasowanie statków na planszy:
+                const userAreaAR: NodeListOf<HTMLDivElement> = document.querySelectorAll('div.areaContentType');
+                for (let i: number = 0; i < userAreaAR.length; i++) {
+                    userAreaAR[i].removeAttribute('class');
+                    userAreaAR[i].setAttribute('class', 'areaContentType');
+                };
+                // Ponowne zapełnianie tablicę ruchomą na współrzędne statków gracza: (kasować indeksów nie musisz, gdyż do ich uprzedniego tworzenia nie użyłeś metody "push()")
+                for (let i: number = 0; i < 100; i++) {
+                    this.fullAreasBoardAR[i] = i;
+                };
+                // Wyłączenie blokady ustawiania statków i wyzerowania liczby utworzonych statków:
+                this.isDisabled = false;
+                this.createLimit = 0;
+                // Ponowne tworzenie wszystkich "option":
+                const selectVALS: string[] = [   // NIE ZAPOMNIJ O MODYFIKACJI PRZY ZMIANIE LICZBY STATKÓW DO USTAWIENIA!
+                    'O0_L0',
+                    'O1_L2',
+                    'O2_L2',
+                    'O3_L3',
+                    'O4_L3',
+                    'O5_L4',
+                    'O6_L5',
+                ];
+                const optionsTitle: string[] = [   // NIE ZAPOMNIJ O MODYFIKACJI PRZY ZMIANIE LICZBY STATKÓW DO USTAWIENIA!
+                    'nie wybrano',
+                    'łódź podwodna',
+                    'łódź podwodna',
+                    'niszczyciel',
+                    'niszczyciel',
+                    'pancernik',
+                    'lotniskowiec',
+                ];
+                for (let i: number = 0; i < this.maxShipAmount + 1; i++) {   // (+ 1), bo to jest liczba statków, a nie wszystkich elementów "option" do utworzenia
+                    const optEL = document.createElement('option');
+                    optEL.setAttribute('class', 'opt');
+                    optEL.setAttribute('value', selectVALS[i]);
+                    const optTN = document.createTextNode(optionsTitle[i]);
+                    optEL.appendChild(optTN);
+                    selectEL.appendChild(optEL);
+                };
+                selectEL.options[0].setAttribute('selected', 'selected');
+            }, false);
+        });
     },
     createAvailableFields(): void {
         // Dostępne pola:
@@ -534,13 +658,15 @@ const userChooseShipCor: {
                                                         //console.log(this.fullAreasBoardAR);
                                                         // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
                                                         this.onceShipArgs[2] = shipCoordinates;
-                                                        //console.log(this.onceShipArgs[2]);
-                                                        setShipInfo.textContent = 'Statek został ustawiony!';
-                                                        //setShipInfo.textContent = '| ';
-                                                        this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
-                                                        for (let n: number = 0; n < shipCoordinates.length; n++) {
-                                                            //setShipInfo.textContent += this.onceShipArgs[2][n] + ' | ';
+                                                        // Tworzenie tablicy trafień dla statku:
+                                                        const shipHitsAR: boolean[] = [];
+                                                        for (let o: number = 0; o < shipLength; o++) {
+                                                            shipHitsAR[o] = false;
                                                         };
+                                                        // Przypisanie tablicy trafień dla stadku do tablicy globalnej obiektu:
+                                                        this.onceShipArgs[3] = shipHitsAR;
+                                                        setShipInfo.textContent = 'Statek został ustawiony!';
+                                                        this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
                                                     } else {}
                                                 } else if (shipCoordinates[m] !== this.fullAreasBoardAR[n]) {
                                                     // Tu mi nie działa komunikat sprawdzania nienakładania się statków... bo zakres nie pozwala...
@@ -585,6 +711,7 @@ const userChooseShipCor: {
 }
 userChooseShipCor.fillFullAreasBoardAR();
 userChooseShipCor.selectShip_AEL();
+userChooseShipCor.resetShipSetting();
 userChooseShipCor.mousemove_AEL();
 userChooseShipCor.setShip_AEL();
 
@@ -592,26 +719,28 @@ userChooseShipCor.setShip_AEL();
 
 // Fabryka statków:
 interface intf_UserShip {
-    shipNum: number,
-    shipLgt: number,
-    ship_Dir: string,
-    shipHits: boolean[],
-    shipStartCor: number,
+    number: number,
+    length: number,
+    direction: string,
+    coordinates: number,
+    hits: boolean[],
     isSunken: boolean
 };
 class UserShipCor implements intf_UserShip {
-    shipNum: number;
-    shipLgt: number;
-    ship_Dir: string;
-    shipStartCor: number;
-    constructor(arg_1, arg_2, arg_3, arg_4) {
-        this.shipNum = arg_1;
-        this.shipLgt = arg_2;
-        this.ship_Dir = arg_3;
-        this.shipStartCor = arg_4;
+    number: number;
+    length: number;
+    direction: string;
+    coordinates: number;
+    hits: boolean[];
+    isSunken: boolean;
+    constructor(arg_1, arg_2, arg_3, arg_4, arg_5) {
+        this.number = arg_1;
+        this.length = arg_2;
+        this.direction = arg_3;
+        this.coordinates = arg_4;
+        this.hits = arg_5;
+        this.isSunken = false;
     };
-    shipHits: [];
-    isSunken: false;
 };
 
 
@@ -637,7 +766,7 @@ const switch_Obj: {
         let com: any = document.getElementById('bb-2');
         if (this.isStart === 'no') {
             this.isStart = 'pause';
-            cntMenu.style.bottom = '-500px';
+            cntMenu.style.bottom = '-420px';
             cntMenu.style.opacity = '0.0';
             cntMenu.style.transitionDuration = '0.5s';
             setTimeout(() => {
@@ -654,11 +783,11 @@ const switch_Obj: {
             }, 500);
         } else if (this.isStart === 'yes') {
             this.isStart = 'pause';
-            com.style.right = '-500px';
+            com.style.right = '-420px';
             com.style.opacity = '0.0';
             com.style.transitionDuration = '0.5s';
             setTimeout(() => {
-                us.style.right = '-500px';
+                us.style.right = '-420px';
                 us.style.transitionDuration = '0.5s';
                 setTimeout(() => {
                     cntMenu.style.bottom = '0px';
