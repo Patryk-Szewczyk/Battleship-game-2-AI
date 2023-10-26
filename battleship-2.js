@@ -216,9 +216,6 @@ var userChooseShipCor = {
     userShipsAR: [],
     onceShipArgs: [3, 'B'],
     submitBut: document.querySelector('div.im-submit'),
-    /*shipLgt: document.querySelector('input.inpLgt'),
-    shipDir: document.querySelector('input.inpDir'),*/
-    //shipStartCor: document.querySelector('input.inpCor'),
     createLimit: 0,
     pointSwt: 'top',
     placeShipSwitch: true,
@@ -227,13 +224,14 @@ var userChooseShipCor = {
     shpPlcPtBCR: [],
     availableFields: [],
     isDisabled: false,
+    currentOptionID: 0,
     fillFullAreasBoardAR: function () {
         for (var i = 0; i < 100; i++) {
             this.fullAreasBoardAR[i] = i;
         }
     },
     addUserShip_AEL: function () {
-        if (this.createLimit < 7) {
+        if (this.createLimit < 6) {
             this.createLimit += 1;
             var num = this.createLimit;
             var lgt = this.onceShipArgs[0];
@@ -241,9 +239,10 @@ var userChooseShipCor = {
             var cor = this.onceShipArgs[2];
             var ship = new UserShipCor(num, lgt, dir, cor);
             this.userShipsAR.push(ship);
+            this.delCurSelectOption();
         }
         else { }
-        if (this.createLimit === 7) {
+        if (this.createLimit === 6) {
             this.isDisabled = true; // WAŻNE: Wyłącz AEL ustawiania statku
             var startBut = document.querySelector('div.button-start-game');
             var info = document.getElementById('clientShow');
@@ -259,8 +258,14 @@ var userChooseShipCor = {
         var selectEL = document.querySelector('select.im-select-ship');
         selectEL.addEventListener('change', function (e) {
             var el = e.currentTarget;
-            var lgt = el.value;
+            var val = el.value;
+            // Pobranie pseudoID wybranego elementu "option":
+            var id = Number(val.slice(1, 2));
+            _this.currentOptionID = id;
+            // Pobranie długości statku:
+            var lgt = Number(val.slice(4, 5));
             _this.onceShipArgs[0] = lgt;
+            // Graficzne wybranie statku:
             var shipPlaceEL = document.getElementById('im-ship-place-element');
             var shipGlobalEL = document.getElementById('im-ship-global-element');
             shipPlaceEL.removeAttribute('class');
@@ -272,6 +277,47 @@ var userChooseShipCor = {
             _this.createAvailableFields();
         }, false);
         this.rotateShip_AEL();
+    },
+    getChoosedOptionEL_AEL: function () {
+        //console.log(optionELS);
+    },
+    delCurSelectOption: function () {
+        // Usuwanie elementu na liście "select":
+        var currentOption = this.currentOptionID; // - 1 (- bo rozpoczynamy od 1, a nie od 0, bo iterujemy od 0 kolekcję elementów)
+        var selectChildren = document.querySelectorAll('option.opt');
+        var selectEL = document.querySelector('select.im-select-ship');
+        var currSelChildID_AR = [];
+        for (var i = 0; i < selectChildren.length; i++) {
+            var val = selectEL.options[i].value;
+            var id = Number(val.slice(1, 2));
+            currSelChildID_AR[i] = id;
+        }
+        ;
+        for (var i = 0; i < selectChildren.length; i++) {
+            if (currentOption == currSelChildID_AR[i]) {
+                selectChildren[i].remove();
+            }
+            else { }
+        }
+        ;
+        //alert(currentOption);
+        // Ustawienie wskaźnika "select" na pierwszy "option":
+        selectEL.options[0].setAttribute('selected', 'selected');
+        // Zmiana pozycji i widoczności elementu "pseudo statku" (do ustawienia):
+        if (this.placeShipSwitch === false) {
+            this.placeShipSwitch = true;
+            var shipLocalEL = document.getElementById('im-ship-place-element');
+            shipLocalEL.style.display = 'flex';
+            var shipGlobalEL = document.getElementById('im-ship-global-element');
+            shipGlobalEL.style.display = 'none'; // MEGA WAŻNE!
+            shipGlobalEL.style.left = 0 + 'px';
+            shipGlobalEL.style.top = 0 + 'px';
+            shipGlobalEL.style.transitionDuration = '0.0s';
+            // Graficzne wybranie statku:
+            shipLocalEL.removeAttribute('class');
+            shipGlobalEL.removeAttribute('class');
+        }
+        else { }
     },
     rotateShip_AEL: function () {
         var _this = this;
@@ -593,6 +639,7 @@ var userChooseShipCor = {
 };
 userChooseShipCor.fillFullAreasBoardAR();
 userChooseShipCor.selectShip_AEL();
+userChooseShipCor.getChoosedOptionEL_AEL();
 userChooseShipCor.mousemove_AEL();
 userChooseShipCor.setShip_AEL();
 ;
