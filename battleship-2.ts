@@ -253,7 +253,7 @@ const userChooseShipCor: {
     setShip_AEL: Function,
     isDisabled: boolean
 } = {
-    maxShipAmount: 6,
+    maxShipAmount: 7,
     fullAreasBoardAR: [],
     userShipsAR: [],
     onceShipArgs: [3, 'B'],   // [3, 'B', 42]
@@ -429,13 +429,9 @@ const userChooseShipCor: {
                 };
                 const selectChildren: NodeListOf<HTMLOptionElement> = document.querySelectorAll('option.opt');
                 const selectEL: any = document.querySelector('select.im-select-ship');
-                console.log(selectChildren);
                 for (let i: number = 0; i < selectChildren.length; i++) {   // UWAGA! MEGA WAŻNE! Zawsze używaj w tej sytuacji ".length" kolekcji elemnetów "NodeListOf<HTMLOptionElement>"
                     selectChildren[i].remove();
-                    console.log(i);
                 };
-                console.log(selectEL);
-                console.log(selectChildren);
                 // Graficzne kasowanie statku na panelu ustawiania:
                 const shipLocalEL: any = document.getElementById('im-ship-place-element');
                 shipLocalEL.removeAttribute('class');
@@ -457,13 +453,15 @@ const userChooseShipCor: {
                     'O0_L0',
                     'O1_L2',
                     'O2_L2',
-                    'O3_L3',
+                    'O3_L2',
                     'O4_L3',
-                    'O5_L4',
-                    'O6_L5',
+                    'O5_L3',
+                    'O6_L4',
+                    'O7_L5',
                 ];
                 const optionsTitle: string[] = [   // NIE ZAPOMNIJ O MODYFIKACJI PRZY ZMIANIE LICZBY STATKÓW DO USTAWIENIA!
                     'nie wybrano',
+                    'łódź podwodna',
                     'łódź podwodna',
                     'łódź podwodna',
                     'niszczyciel',
@@ -674,11 +672,10 @@ const userChooseShipCor: {
                                             };
                                         };
                                         for (let k: number = 0; k < this.fullAreasBoardAR.length; k++) {
+                                            OVERLOOP_fullAreasBoardAR_nextCoor += 1;
+                                            let target: number = this.fullAreasBoardAR.length;
                                             for (let l: number = 0; l < this.onceShipArgs[2].length; l++) {
-                                                OVERLOOP_fullAreasBoardAR_nextCoor += 1;
-                                                let target: number = this.fullAreasBoardAR.length * shipLength;
                                                 if (OVERLOOP_fullAreasBoardAR_nextCoor === target) {
-                                                    //  alert(IS_In_fullAreasBoardAR_nextCoor === shipLength);
                                                     if (IS_In_fullAreasBoardAR_nextCoor < shipLength) {
                                                         setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
                                                     } else {}
