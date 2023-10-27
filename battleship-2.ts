@@ -280,7 +280,15 @@ const userChooseShipCor: {
             let lgt: number = this.onceShipArgs[0];
             let dir: string = this.onceShipArgs[1];
             const cor: number[] = this.onceShipArgs[2];
-            const hits: boolean[] = this.onceShipArgs[3];
+            const hits: boolean[] = [];
+            // Tworzenie tablicy trafień dla statku:
+            const shipHitsAR: boolean[] = [];
+            for (let i: number = 0; i < cor.length; i++) {
+                shipHitsAR[i] = false;
+            };
+            // Przypisanie tablicy trafień dla stadku do tablicy globalnej obiektu:
+            this.onceShipArgs[3] = shipHitsAR;
+            // Transportowanie argumantów do fabryki statków:
             let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor, hits);
             this.userShipsAR.push(ship);
             // Utwórz graficznie statek na planszy:
@@ -586,7 +594,6 @@ const userChooseShipCor: {
                 let usrBrd_Right = userBoardEL_RECT.right;
                 let plcPnt_X = this.shpPlcPtBCR.x;
                 let plcPnt_Y = this.shpPlcPtBCR.y;
-                let shipCoordinates: number[] = [];
                 const setShipInfo: HTMLElement = document.getElementById('clientShow');
                 //this.onceShipArgs[2] = [];
                 //console.log(`usr_Top: ${usrBrd_Top} | usr_Bottom: ${usrBrd_Bottom} | usr_Left: ${usrBrd_Left} | usr_Right ${usrBrd_Right} | plc_X ${plcPnt_X} | plc_Y: ${plcPnt_Y}`);
@@ -595,104 +602,19 @@ const userChooseShipCor: {
                         //setShipInfo.textContent = 'You can place ship here!';
                         for (let i: number = 0; i < fieldsPosition_Obj.fieldsPosARS.length; i++) {
                             if ((plcPnt_X > fieldsPosition_Obj.fieldsPosARS[i][2] && plcPnt_X < fieldsPosition_Obj.fieldsPosARS[i][3]) && (plcPnt_Y > fieldsPosition_Obj.fieldsPosARS[i][0] && plcPnt_Y < fieldsPosition_Obj.fieldsPosARS[i][1])) {
-                                let selectArea = i;
-                                let notIsIn_availableFields: number = 0;
-                                // Sprawdzenie czy punkt początkowy statku jest dostępny w "this.availableFields": (dostepne pola na długośc i kierunek, tablica stała)
-                                for (let j: number = 0; j < this.availableFields.length; j++) {
-                                    let notIsIn_fullAreasBoardAR: number = 0; 
-                                    if (selectArea === this.availableFields[j]) {
-                                        let IS_In_fullAreasBoardAR_nextCoor: number = 0;
-                                        let OVERLOOP_fullAreasBoardAR_nextCoor: number = 0;
-                                        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                                        // Sprawdzenie czy punkt początkowy statku jest dostępny w "this.fullAreasBoardAR": (tablica dostępnych pól, tablica ruchoma)
-                                        for (let k: number = 0; k < this.fullAreasBoardAR.length; k++) {
-                                            if (selectArea === this.fullAreasBoardAR[k]) {
-                                                shipCoordinates[0] = selectArea   // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
-                                                //alert('To miejsce jest wolne!');
-                                                //setShipInfo.textContent = 'To miejsce jest wolne!';
-                                            } else if (selectArea !== this.fullAreasBoardAR[k]) {
-                                                notIsIn_fullAreasBoardAR += 1;
-                                                if (notIsIn_fullAreasBoardAR === this.fullAreasBoardAR.length) {
-                                                    //alert('Miejsce to jest zajęte przez inny statek!');
-                                                    setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
-                                                    // MEGA WAŻNA ULTRA RZECZ!!!
-                                                    return;   // Zakończ wykonywanie funkcji, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
-                                                } else {}
-                                            }
-                                        };
-                                        // - - - - - - - - - - - - - - - - - - - - // Dla jasności: Do sprawdzania limitu pól potrzebujemy jedynie współrzędnej punktu początkowego statku.
-                                        // Tworzenie dalszych współrzędnych statku w zależnośći od jego długości i kierunku:
-                                        let shipLength = Number(this.onceShipArgs[0]);
-                                        const shipDirection = this.onceShipArgs[1];
-                                        //alert ('length: ' + shipLength + ' | direction: ' + shipDirection);
-                                        // Ustawianie wartości zmiennnej inkrementującej dalse współrzędne statku, w zależności od kireunku jego położenia:
-                                        let incrVal = selectArea;
-                                        if (shipDirection === 'R') {
-                                            incrVal = 1;
-                                        } else if (shipDirection === 'B') {
-                                            incrVal = 10;
-                                        }
-                                        //alert(incrVal);
-                                        // Tworzenie dalszych współrzędnych:
-                                        let nextCoor = selectArea;   // Utworzenie zmiennej przechowującej nową aktualną współrzędną (później w FORze)
-                                        for (let m: number = 1; m < shipLength; m++) {
-                                            nextCoor += incrVal;
-                                            shipCoordinates[m] = nextCoor;
-                                        };
-                                        //alert(shipCoordinates);
-                                        // Sprawdzenie czy aktualnie utworzone współrzędne istnieją już w tablicy dostępnych pól "this.fullAreasBoardAR":
-                                        for (let m: number = 0; m < shipCoordinates.length; m++) {   // Wziąłem sprawdzanie od pierwszego dla bezpieczeństwa
-                                            for (let n: number = 0; n < this.fullAreasBoardAR.length; n++) {
-                                                if (shipCoordinates[m] === this.fullAreasBoardAR[n]) {
-                                                    IS_In_fullAreasBoardAR_nextCoor += 1;
-                                                    if (IS_In_fullAreasBoardAR_nextCoor === shipCoordinates.length) {
-                                                        //alert('Współrzędne istnieją w tablicy! Można ustawić statek!');
-                                                        // Splicowanie tablicy dostępnych pól (ruchomej):
-                                                        for (let n: number = 0; n < shipCoordinates.length; n++) {
-                                                            let elLoc: number = this.fullAreasBoardAR.indexOf(shipCoordinates[n]);
-                                                            this.fullAreasBoardAR.splice(elLoc, 1);
-                                                        };
-                                                        //alert(shipCoordinates);
-                                                        //console.log(this.fullAreasBoardAR);
-                                                        // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
-                                                        this.onceShipArgs[2] = shipCoordinates;
-                                                        // Tworzenie tablicy trafień dla statku:
-                                                        const shipHitsAR: boolean[] = [];
-                                                        for (let o: number = 0; o < shipLength; o++) {
-                                                            shipHitsAR[o] = false;
-                                                        };
-                                                        // Przypisanie tablicy trafień dla stadku do tablicy globalnej obiektu:
-                                                        this.onceShipArgs[3] = shipHitsAR;
-                                                        setShipInfo.textContent = 'Statek został ustawiony!';
-                                                        this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
-                                                    } else {}
-                                                } else if (shipCoordinates[m] !== this.fullAreasBoardAR[n]) {
-                                                    // Tu mi nie działa komunikat sprawdzania nienakładania się statków... bo zakres nie pozwala...
-                                                }
-                                            };
-                                        };
-                                        for (let k: number = 0; k < this.fullAreasBoardAR.length; k++) {
-                                            OVERLOOP_fullAreasBoardAR_nextCoor += 1;
-                                            let target: number = this.fullAreasBoardAR.length;
-                                            for (let l: number = 0; l < this.onceShipArgs[2].length; l++) {
-                                                if (OVERLOOP_fullAreasBoardAR_nextCoor === target) {
-                                                    if (IS_In_fullAreasBoardAR_nextCoor < shipLength) {
-                                                        setShipInfo.textContent = 'Statki nie mogą nakładać się na siebie!';
-                                                    } else {}
-                                                } else {}
-                                            };
-                                        };
-                                        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                                    } else if (selectArea !== this.availableFields[j]) {
-                                        notIsIn_availableFields += 1;
-                                        // Sytuacja: Statek znajduje się poza planszą.
-                                        // Jeżeli w każdym z indeksów tablicy "ograniczonych pól" (stałej) nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku:
-                                        if (notIsIn_availableFields === this.availableFields.length) {
-                                            //alert('Statek nie może znajdować się poza planszą!');
-                                            setShipInfo.textContent = 'Statek nie może znajdować się poza planszą!';
-                                        } else {}
-                                    }
-                                };
+                                // Deklarowanie argumentów o tworzonym statku i informacjach zwrotnych:
+                                let firstCoor: number = i;
+                                let shipLength: number = Number(userChooseShipCor.onceShipArgs[0]);
+                                const shipDirection: (number | string | boolean) = userChooseShipCor.onceShipArgs[1];
+                                let availableFields: number[] = userChooseShipCor.availableFields;
+                                let fullIndexBoard: number[] = userChooseShipCor.fullAreasBoardAR;
+                                const infoRecipient: HTMLDivElement = document.querySelector('div.clientShow');
+                                // Wrzucanie argumentów do funkcji tworzącej statek i sprawdzającej jego bezkolizyjność na planszy:
+                                this.onceShipArgs[2] = shipColisions.checkShipColisions(firstCoor, shipLength, shipDirection, availableFields, fullIndexBoard, infoRecipient);
+                                if (this.onceShipArgs[2].length == shipLength) {
+                                    this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
+                                    setShipInfo.textContent = 'Statek został ustawiony!';
+                                }
                             } else {}
                         };
                     } else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && this.placeShipSwitch === false) {
@@ -711,6 +633,111 @@ userChooseShipCor.selectShip_AEL();
 userChooseShipCor.resetShipSetting();
 userChooseShipCor.mousemove_AEL();
 userChooseShipCor.setShip_AEL();
+
+
+
+// Funkcja ta tworzy statek i jednocześnie sprawdza czy sttek ten można umieścić na planszy (granice planszy i bezkolizyjność).
+// Funkcja ta przyjmuje 6 argumentów.
+const shipColisions: {
+    checkShipColisions: Function
+} = {
+    checkShipColisions(arg_1, arg_2, arg_3, arg_4, arg_5, arg_6) {
+        // Deklaracja głównych zmiennych:
+        let firstCoor: number = arg_1;
+        let shipLength: number = arg_2;
+        const shipDirection: (number | string | boolean) = arg_3;
+        let availableFields: number[] = arg_4;
+        let fullIndexBoard: number[] = arg_5;
+        const infoRecipient: HTMLDivElement = arg_6;
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        let shipCoordinates: number[] = arg_6;
+        let notIsIn_availableFields: number = 0;
+        // Sprawdzenie czy punkt początkowy statku jest dostępny w "availableFields": (dostepne pola na długośc i kierunek, tablica stała)
+        for (let j: number = 0; j < availableFields.length; j++) {
+            let notIsIn_fullAreasBoardAR: number = 0; 
+            if (firstCoor === availableFields[j]) {
+                let IS_In_fullAreasBoardAR_nextCoor: number = 0;
+                let OVERLOOP_fullAreasBoardAR_nextCoor: number = 0;
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+                // Sprawdzenie czy punkt początkowy statku jest dostępny w "fullIndexBoard": (tablica dostępnych pól, tablica ruchoma)
+                for (let k: number = 0; k < fullIndexBoard.length; k++) {
+                    if (firstCoor === fullIndexBoard[k]) {
+                        shipCoordinates[0] = firstCoor   // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
+                        //alert('To miejsce jest wolne!');
+                        //setShipInfo.textContent = 'To miejsce jest wolne!';
+                    } else if (firstCoor !== fullIndexBoard[k]) {
+                        notIsIn_fullAreasBoardAR += 1;
+                        if (notIsIn_fullAreasBoardAR === fullIndexBoard.length) {
+                            //alert('Miejsce to jest zajęte przez inny statek!');
+                            infoRecipient.textContent = 'Statki nie mogą nakładać się na siebie!';
+                            // MEGA WAŻNA ULTRA RZECZ!!!
+                            return;   // Zakończ wykonywanie funkcji, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
+                        } else {}
+                    }
+                };
+                // - - - - - - - - - - - - - - - - - - - - // Dla jasności: Do sprawdzania limitu pól potrzebujemy jedynie współrzędnej punktu początkowego statku.
+                // Tworzenie dalszych współrzędnych statku w zależnośći od jego długości i kierunku:
+                // Ustawianie wartości zmiennnej inkrementującej dalse współrzędne statku, w zależności od kireunku jego położenia:
+                let incrVal = firstCoor;
+                if (shipDirection === 'R') {
+                    incrVal = 1;
+                } else if (shipDirection === 'B') {
+                    incrVal = 10;
+                }
+                //alert(incrVal);
+                // Tworzenie dalszych współrzędnych:
+                let nextCoor = firstCoor;   // Utworzenie zmiennej przechowującej nową aktualną współrzędną (później w FORze)
+                for (let m: number = 1; m < shipLength; m++) {
+                    nextCoor += incrVal;
+                    shipCoordinates[m] = nextCoor;
+                };
+                //alert(shipCoordinates);
+                // Sprawdzenie czy aktualnie utworzone współrzędne istnieją już w tablicy dostępnych pól "fullIndexBoard":
+                for (let m: number = 0; m < shipCoordinates.length; m++) {   // Wziąłem sprawdzanie od pierwszego dla bezpieczeństwa
+                    for (let n: number = 0; n < fullIndexBoard.length; n++) {
+                        if (shipCoordinates[m] === fullIndexBoard[n]) {
+                            IS_In_fullAreasBoardAR_nextCoor += 1;
+                            if (IS_In_fullAreasBoardAR_nextCoor === shipCoordinates.length) {
+                                //alert('Współrzędne istnieją w tablicy! Można ustawić statek!');
+                                // Splicowanie tablicy dostępnych pól (ruchomej):
+                                for (let n: number = 0; n < shipCoordinates.length; n++) {
+                                    let elLoc: number = fullIndexBoard.indexOf(shipCoordinates[n]);
+                                    fullIndexBoard.splice(elLoc, 1);
+                                };
+                                //alert(shipCoordinates);
+                                //console.log(fullIndexBoard);
+                                // Przypisanie współrzędnych statku tablicy lokalne do tablicy globalnej obiektu:
+                                return shipCoordinates;   // Zwróć współrzędne do odbiorcy
+                            } else {}
+                        } else if (shipCoordinates[m] !== fullIndexBoard[n]) {
+                            // Tu mi nie działa komunikat sprawdzania nienakładania się statków... bo zakres nie pozwala...
+                        }
+                    };
+                };
+                for (let k: number = 0; k < fullIndexBoard.length; k++) {
+                    OVERLOOP_fullAreasBoardAR_nextCoor += 1;
+                    let target: number = fullIndexBoard.length;
+                    for (let l: number = 0; l < shipCoordinates.length; l++) {
+                        if (OVERLOOP_fullAreasBoardAR_nextCoor === target) {
+                            if (IS_In_fullAreasBoardAR_nextCoor < shipLength) {
+                                infoRecipient.textContent = 'Statki nie mogą nakładać się na siebie!';
+                            } else {}
+                        } else {}
+                    };
+                };
+                // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+            } else if (firstCoor !== availableFields[j]) {
+                notIsIn_availableFields += 1;
+                // Sytuacja: Statek znajduje się poza planszą.
+                // Jeżeli w każdym z indeksów tablicy "ograniczonych pól" (stałej) nie ma współrzędej, równej tej z położeniem punktu początkowego statku => Nie twórz współrzędnych statku:
+                if (notIsIn_availableFields === availableFields.length) {
+                    //alert('Statek nie może znajdować się poza planszą!');
+                    infoRecipient.textContent = 'Statek nie może znajdować się poza planszą!';
+                } else {}
+            }
+        };
+    }
+};
 
 
 
