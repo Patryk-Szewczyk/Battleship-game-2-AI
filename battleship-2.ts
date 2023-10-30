@@ -226,34 +226,6 @@ fieldsPosition_Obj.getFieldsPos();
 
 
 
-// Fabryka statków:
-interface intf_UserShip {
-    number: number,
-    length: number,
-    direction: string,
-    coordinates: number,
-    hits: boolean[],
-    isSunken: boolean
-};
-class UserShipCor implements intf_UserShip {
-    number: number;
-    length: number;
-    direction: string;
-    coordinates: number;
-    hits: boolean[];
-    isSunken: boolean;
-    constructor(arg_1, arg_2, arg_3, arg_4, arg_5) {
-        this.number = arg_1;
-        this.length = arg_2;
-        this.direction = arg_3;
-        this.coordinates = arg_4;
-        this.hits = arg_5;
-        this.isSunken = false;
-    };
-};
-
-
-
 const switch_Obj: {
     but: HTMLDivElement,
     startGame: Function,
