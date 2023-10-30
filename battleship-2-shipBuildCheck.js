@@ -1,7 +1,7 @@
 // Funkcja ta tworzy statek i jednocześnie sprawdza czy sttek ten można umieścić na planszy (granice planszy i bezkolizyjność).
 // Funkcja ta przyjmuje 6 argumentów.
 var shipColisions = {
-    checkShipColisions: function (arg_1, arg_2, arg_3, arg_4, arg_5, arg_6) {
+    checkShipColisions: function (arg_1, arg_2, arg_3, arg_4, arg_5, arg_6, arg_7) {
         // Deklaracja głównych zmiennych:
         var firstCoor = arg_1;
         var shipLength = arg_2;
@@ -9,7 +9,14 @@ var shipColisions = {
         var availableFields = arg_4;
         var fullIndexBoard = arg_5;
         var infoRecipient = arg_6;
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        var isComp = arg_7;
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Współrzedna początkowa dla komputera: (przełączenie na losową)
+        if (isComp === true) {
+            firstCoor = Math.ceil(Math.random() * 99);
+        }
+        else { }
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         var shipCoordinates = [];
         var notIsIn_availableFields = 0;
         // Sprawdzenie czy punkt początkowy statku jest dostępny w "availableFields": (dostepne pola na długośc i kierunek, tablica stała)
@@ -32,7 +39,7 @@ var shipColisions = {
                             //alert('Miejsce to jest zajęte przez inny statek!');
                             infoRecipient.textContent = 'Statki nie mogą nakładać się na siebie!';
                             // MEGA WAŻNA ULTRA RZECZ!!!
-                            return; // Zakończ wykonywanie funkcji, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
+                            return; // Zakończ wykonywanie funkcji dla GRACZA, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
                         }
                         else { }
                     }
