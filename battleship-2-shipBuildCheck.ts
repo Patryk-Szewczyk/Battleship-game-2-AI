@@ -3,7 +3,7 @@
 const shipColisions: {
     checkShipColisions: Function
 } = {
-    checkShipColisions(arg_1, arg_2, arg_3, arg_4, arg_5, arg_6) {
+    checkShipColisions(arg_1, arg_2, arg_3, arg_4, arg_5, arg_6, arg_7) {
         // Deklaracja głównych zmiennych:
         let firstCoor: number = arg_1;
         let shipLength: number = arg_2;
@@ -11,7 +11,13 @@ const shipColisions: {
         let availableFields: number[] = arg_4;
         let fullIndexBoard: number[] = arg_5;
         const infoRecipient: HTMLElement = arg_6;
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        const isComp: boolean = arg_7;
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Współrzedna początkowa dla komputera: (przełączenie na losową)
+        if (isComp === true) {
+            firstCoor = Math.ceil(Math.random() * 99);
+        } else {}
+        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         let shipCoordinates: number[] = [];
         let notIsIn_availableFields: number = 0;
         // Sprawdzenie czy punkt początkowy statku jest dostępny w "availableFields": (dostepne pola na długośc i kierunek, tablica stała)
@@ -24,7 +30,7 @@ const shipColisions: {
                 // Sprawdzenie czy punkt początkowy statku jest dostępny w "fullIndexBoard": (tablica dostępnych pól, tablica ruchoma)
                 for (let k: number = 0; k < fullIndexBoard.length; k++) {
                     if (firstCoor === fullIndexBoard[k]) {
-                        shipCoordinates[0] = firstCoor   // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
+                        shipCoordinates[0] = firstCoor;   // Włożenie gotowej pierwszej współrzędnej do lokalnej tablicy współrzędnych
                         //alert('To miejsce jest wolne!');
                         //setShipInfo.textContent = 'To miejsce jest wolne!';
                     } else if (firstCoor !== fullIndexBoard[k]) {
@@ -33,7 +39,7 @@ const shipColisions: {
                             //alert('Miejsce to jest zajęte przez inny statek!');
                             infoRecipient.textContent = 'Statki nie mogą nakładać się na siebie!';
                             // MEGA WAŻNA ULTRA RZECZ!!!
-                            return;   // Zakończ wykonywanie funkcji, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
+                            return;   // Zakończ wykonywanie funkcji dla GRACZA, uniemożliwiając tworzenie współrzędnych dla dalszej część statku
                         } else {}
                     }
                 };
