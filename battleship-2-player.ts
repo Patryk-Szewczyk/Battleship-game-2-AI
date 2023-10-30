@@ -1,9 +1,37 @@
+// Fabryka statków:
+interface intf_UserShip {
+    number: number,
+    length: number,
+    direction: string,
+    coordinates: number,
+    hits: boolean[],
+    isSunken: boolean
+};
+class UserShipCor implements intf_UserShip {
+    number: number;
+    length: number;
+    direction: string;
+    coordinates: number;
+    hits: boolean[];
+    isSunken: boolean;
+    constructor(arg_1, arg_2, arg_3, arg_4, arg_5) {
+        this.number = arg_1;
+        this.length = arg_2;
+        this.direction = arg_3;
+        this.coordinates = arg_4;
+        this.hits = arg_5;
+        this.isSunken = false;
+    };
+};
+
+
+
 // Użytkownik - akcje:
 const userChooseShipCor: {
+    userShipsAR: UserShipCor[],
     maxShipAmount: number,
     fullAreasBoardAR: number[],
     fillFullAreasBoardAR: Function,
-    userShipsAR: UserShipCor[],
     onceShipArgs: (string | number | boolean)[],
     addUserShip_AEL: Function,
     submitBut: HTMLInputElement,
@@ -25,9 +53,9 @@ const userChooseShipCor: {
     setShip_AEL: Function,
     isDisabled: boolean
 } = {
+    userShipsAR: [],
     maxShipAmount: 7,
     fullAreasBoardAR: [],
-    userShipsAR: [],
     onceShipArgs: [3, 'B'],   // [3, 'B', 42]
     submitBut: document.querySelector('div.im-submit'),
     createLimit: 0,
@@ -42,7 +70,7 @@ const userChooseShipCor: {
     fillFullAreasBoardAR(): void {
         for (let i: number = 0; i < 100; i++) {
             this.fullAreasBoardAR[i] = i;
-        }
+        };
     },
     addUserShip_AEL(): void {
         if (this.createLimit < this.maxShipAmount) {
@@ -53,13 +81,11 @@ const userChooseShipCor: {
             let dir: string = this.onceShipArgs[1];
             const cor: number[] = this.onceShipArgs[2];
             const hits: boolean[] = [];
-            // Tworzenie tablicy trafień dla statku:
-            const shipHitsAR: boolean[] = [];
             for (let i: number = 0; i < cor.length; i++) {
-                shipHitsAR[i] = false;
+                hits[i] = false;
             };
             // Przypisanie tablicy trafień dla stadku do tablicy globalnej obiektu:
-            this.onceShipArgs[3] = shipHitsAR;
+            this.onceShipArgs[3] = hits;
             // Transportowanie argumantów do fabryki statków:
             let ship: UserShipCor = new UserShipCor(num, lgt, dir, cor, hits);
             this.userShipsAR.push(ship);
@@ -384,12 +410,18 @@ const userChooseShipCor: {
                                 let availableFields: number[] = userChooseShipCor.availableFields;
                                 let fullIndexBoard: number[] = userChooseShipCor.fullAreasBoardAR;
                                 const infoRecipient: HTMLElement = setShipInfo;
+                                const isComp: boolean = false;
                                 // Wrzucanie argumentów do funkcji tworzącej statek i sprawdzającej jego bezkolizyjność na planszy:
-                                this.onceShipArgs[2] = shipColisions.checkShipColisions(firstCoor, shipLength, shipDirection, availableFields, fullIndexBoard, infoRecipient);
-                                if (this.onceShipArgs[2].length == shipLength) {
-                                    this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
-                                    setShipInfo.textContent = 'Statek został ustawiony!';
-                                }
+                                this.onceShipArgs[2] = shipColisions.checkShipColisions(firstCoor, shipLength, shipDirection, availableFields, fullIndexBoard, infoRecipient, isComp);
+                                //console.log(this.onceShipArgs[2].length);
+                                // Jak robiłem losowanie statków dla KOMPUTERA, to z niewiadomego powodu dla GRACZA pojawiało się tutaj "undefined", jeżeli statki nakładały się na siebie,
+                                // dlatego musiałem zrobić tego IF'a:
+                                if (this.onceShipArgs[2] != undefined) {   // MUSI BYĆ (!=), NIE (!==), bo wartości po prostu nie ma
+                                    if (this.onceShipArgs[2].length === shipLength) {
+                                        this.addUserShip_AEL();   // Przenieś wszystkie dane o tworzonym statku do fabryki statków i utwórz obiekt tego statku
+                                        setShipInfo.textContent = 'Statek został ustawiony!';
+                                    } else {}
+                                } else {}
                             } else {}
                         };
                     } else if (((plcPnt_X < usrBrd_Left || plcPnt_X > usrBrd_Right) || (plcPnt_Y < usrBrd_Top || plcPnt_Y > usrBrd_Bottom)) && this.placeShipSwitch === false) {
