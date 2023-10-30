@@ -213,20 +213,6 @@ var fieldsPosition_Obj = {
     }
 };
 fieldsPosition_Obj.getFieldsPos();
-;
-var UserShipCor = /** @class */ (function () {
-    function UserShipCor(arg_1, arg_2, arg_3, arg_4, arg_5) {
-        this.number = arg_1;
-        this.length = arg_2;
-        this.direction = arg_3;
-        this.coordinates = arg_4;
-        this.hits = arg_5;
-        this.isSunken = false;
-    }
-    ;
-    return UserShipCor;
-}());
-;
 var switch_Obj = {
     isStart: 'no',
     but: document.querySelector('div.button-start-game'),
