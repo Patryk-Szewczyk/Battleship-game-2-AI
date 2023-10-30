@@ -1,9 +1,36 @@
-// Komputer
-/*
+// Fabryka statków:
+interface intf_CompShip {
+    number: number,
+    length: number,
+    direction: string,
+    coordinates: number,
+    hits: boolean[],
+    isSunken: boolean
+};
+class CompShipCor implements intf_CompShip {
+    number: number;
+    length: number;
+    direction: string;
+    coordinates: number;
+    hits: boolean[];
+    isSunken: boolean;
+    constructor(arg_1, arg_2, arg_3, arg_4, arg_5) {
+        this.number = arg_1;
+        this.length = arg_2;
+        this.direction = arg_3;
+        this.coordinates = arg_4;
+        this.hits = arg_5;
+        this.isSunken = false;
+    };
+};
+
+
+
+// Komputer - akcje:
 const computerRandShip: {
+    compShips_AR: CompShipCor[],
     fullAreasBoard_AR: number[],
     fillFullAreasBoard_AR_Func: Function,
-    compShips_AR: UserShipCor[],
     onceShipArgs: (string | number | boolean)[],
     createLimit: number,
     createAvailableFields_Func: Function,
@@ -11,8 +38,8 @@ const computerRandShip: {
     direction_AR: string[],
     shipLength_AR: number[]
 } = {
-    fullAreasBoard_AR: [],
     compShips_AR: [],
+    fullAreasBoard_AR: [],
     onceShipArgs: [3, 'B'],
     createLimit: 0,
     direction_AR: ['B', 'R'],
@@ -26,20 +53,30 @@ const computerRandShip: {
         while (this.createLimit < this.shipLength_AR.length) {
             this.createLimit += 1;
             // Argumanty z buta wjeżdżające:
-            let number: number = this.createLimit;
-            let shipLength: number = this.shipLength_AR[this.createLimit - 1];
-            const shipDirection: string = this.direction_AR[Math.floor(Math.random() * 2)];
-            let availableFields: number[] = this.createAvailableFields_Func(shipLength, shipDirection);
+            let num: number = this.createLimit;
+            let lgt: number = this.shipLength_AR[this.createLimit - 1];
+            let dir: string = this.direction_AR[Math.floor(Math.random() * 2)];
+            let avlFld: number[] = this.createAvailableFields_Func(lgt, dir);
             //console.log(availableFields.length);
             // Częśc argumentów sepecjalnie do buildCheckera:
-            let firstCoor: number = Math.ceil(Math.random() * 99);
-            let fullIndexBoard = this.fullAreasBoard_AR;
-            const infoRecipient: HTMLElement = document.querySelector('div.none');
+            let firstCoor: number = 0;   // Random ustalane jest w builderCheckerze z powodu tego, iż współrzędne mogą się powtarzać i potrzeba ponownego wylosowania współrzędnej początkowej
+            let fullIdxBrd = this.fullAreasBoard_AR;
+            const infRcp: HTMLElement = document.querySelector('div.none');
             const isComp: boolean = true;
-            // Powrót: - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-            let cor: number[] = shipColisions.checkShipColisions(firstCoor, shipLength, shipDirection, availableFields, fullIndexBoard, infoRecipient, isComp);
-            //console.log(cor);
+            // Jeżeli wartością współrzędnych danego statku będzie "undefined" - powtórz losowanie:
+            let cor: number[] = shipColisions.checkShipColisions(firstCoor, lgt, dir, avlFld, fullIdxBrd, infRcp, isComp);
+            while (cor == undefined) {
+                cor = shipColisions.checkShipColisions(firstCoor, lgt, dir, avlFld, fullIdxBrd, infRcp, isComp);
+            };
+            // Tworzenie tablicy trafień dla statku:
+            let hits: boolean[] = [];
+            for (let i: number = 0; i < cor.length; i++) {
+                hits[i] = false;
+            };
+            let ship: CompShipCor = new CompShipCor(num, lgt, dir, cor, hits);
+            this.compShips_AR.push(ship);
         };
+        console.log(this.compShips_AR);
     },
     createAvailableFields_Func(shipLength, shipDirection) {
         // Dostępne pola:
@@ -75,11 +112,7 @@ const computerRandShip: {
         }
         return newArr;
         //console.log(this.availableFields);    /*ARRAY_FIELDS CONSOLLOG*/
-  //  },
-//};
-/*
+  },
+};
 computerRandShip.fillFullAreasBoard_AR_Func();
 computerRandShip.addCompShip_Func();
-
-
-*/
