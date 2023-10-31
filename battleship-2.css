@@ -300,7 +300,7 @@ body {
         #bb-2 {
             margin-left: 40px;
             opacity: 0.0;
-            right: -1000px;
+            right: -840px;
         }
             .board-prp {
                 width: 100%;
@@ -328,6 +328,9 @@ body {
                         justify-content: center;
                         align-items: center;
                         z-index: 1;
+                    }
+                    .COMP_gphSphHid {
+                        opacity: 0.3;
                     }
                     .act-ship-DirB-S2, .act-ship-DirB-S3, .act-ship-DirB-S4, .act-ship-DirB-S5 {
                         width: 28px;
@@ -451,4 +454,7 @@ body {
                     .board-cor-L {
                         left: -42px;
                     }
+    .none {
+        display: none;
+    }
 }
