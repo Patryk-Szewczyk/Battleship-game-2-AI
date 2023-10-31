@@ -73,8 +73,15 @@ const computerRandShip: {
             for (let i: number = 0; i < cor.length; i++) {
                 hits[i] = false;
             };
+            // Tworzenie obiektu statku:
             let ship: CompShipCor = new CompShipCor(num, lgt, dir, cor, hits);
             this.compShips_AR.push(ship);
+            // Tworzenie statku na planszy: (niewidzialnego)
+            const computerField: any = document.querySelectorAll('div.board-prp')[1];
+            const compFieldChildren: HTMLCollection = computerField.children;
+            //console.log(compFieldChildren[cor[0]].children[0]);
+            compFieldChildren[ship.coordinates[0]].children[0].removeAttribute('class');
+            compFieldChildren[ship.coordinates[0]].children[0].setAttribute('class', 'areaContentType act-ship-Dir' + dir + '-S' + String(lgt) + ' COMP_gphSphHid');
         };
         console.log(this.compShips_AR);
     },
