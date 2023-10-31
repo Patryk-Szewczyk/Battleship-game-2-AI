@@ -92,7 +92,7 @@ const userChooseShipCor: {
             // Utwórz graficznie statek na planszy:
             const userAreaAR: NodeListOf<HTMLDivElement> = document.querySelectorAll('div.areaContentType');
             userAreaAR[this.onceShipArgs[2][0]].removeAttribute('class');
-            userAreaAR[this.onceShipArgs[2][0]].setAttribute('class', 'areaContentType act-ship-Dir' + dir + '-S' + lgt);
+            userAreaAR[this.onceShipArgs[2][0]].setAttribute('class', 'areaContentType act-ship-Dir' + dir + '-S' + String(lgt));
             // Kasowanie aktualnego "option" w "select":
             this.delCurSelectOption();
             // Pokazanie przycisku resetującego ustawianie statków:
