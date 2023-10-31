@@ -52,8 +52,15 @@ var computerRandShip = {
                 hits[i] = false;
             }
             ;
+            // Tworzenie obiektu statku:
             var ship = new CompShipCor(num, lgt, dir, cor, hits);
             this.compShips_AR.push(ship);
+            // Tworzenie statku na planszy: (niewidzialnego)
+            var computerField = document.querySelectorAll('div.board-prp')[1];
+            var compFieldChildren = computerField.children;
+            //console.log(compFieldChildren[cor[0]].children[0]);
+            compFieldChildren[ship.coordinates[0]].children[0].removeAttribute('class');
+            compFieldChildren[ship.coordinates[0]].children[0].setAttribute('class', 'areaContentType act-ship-Dir' + dir + '-S' + String(lgt) + ' COMP_gphSphHid');
         }
         ;
         console.log(this.compShips_AR);
